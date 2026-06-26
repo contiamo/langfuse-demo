@@ -15,6 +15,21 @@ services:
       timeout: 5s
       retries: 10
 
+  app:
+    build: .
+    environment:
+      DATABASE_URL: postgresql://${DB_USER:-ragdemo}:${DB_PASSWORD:-ragdemo}@db:5432/${DB_NAME:-ragdemo}
+      OPENAI_API_KEY: ${OPENAI_API_KEY}
+      LLM_MODEL: ${LLM_MODEL:-gpt-4o-mini}
+      EMBEDDING_MODEL: ${EMBEDDING_MODEL:-text-embedding-3-small}
+      LANGFUSE_PUBLIC_KEY: ${LANGFUSE_PUBLIC_KEY:-}
+      LANGFUSE_SECRET_KEY: ${LANGFUSE_SECRET_KEY:-}
+      LANGFUSE_HOST: ${LANGFUSE_HOST:-https://cloud.langfuse.com}
+    ports:
+      - "7932:7932"
+    depends_on:
+      db:
+        condition: service_healthy
 
 volumes:
   pgdata:

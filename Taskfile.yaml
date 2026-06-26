@@ -6,31 +6,35 @@ tasks:
     cmds:
       - uv sync --all-groups
 
-  migrate:
-    desc: Run database migrations
+  run:
+    desc: Build and start everything in Docker (http://localhost:7932)
     cmds:
-      - uv run rag-migrate
-
-  ingest:
-    desc: Ingest PDFs/TXTs from data/ into the vector DB
-    cmds:
-      - uv run rag-ingest --source-dir data/
-
-  db:
-    desc: Start the database
-    cmds:
-      - docker compose up -d db
+      - docker compose up -d --build
 
   stop:
     desc: Stop all Docker services
     cmds:
       - docker compose down
 
-  run:
-    desc: Start the RAG agent with built-in web UI (http://localhost:7932)
-    aliases: [dev]
+  migrate:
+    desc: Run database migrations (requires running DB)
+    cmds:
+      - uv run rag-migrate
+
+  ingest:
+    desc: Ingest PDFs/TXTs from data/ into the vector DB (requires running DB)
+    cmds:
+      - uv run rag-ingest --source-dir data/
+
+  dev:
+    desc: Start the agent locally with hot-reload (requires running DB via task run or task db)
     cmds:
       - uv run uvicorn rag.agent:app --host 127.0.0.1 --port 7932 --reload
+
+  db:
+    desc: Start only the database
+    cmds:
+      - docker compose up -d db
 
   lint:
     desc: Lint and format check
@@ -49,6 +53,6 @@ tasks:
       - uv run pytest -v
 
   "regression:test":
-    desc: Run eval dataset via Langfuse experiment, assert score thresholds
+    desc: Run eval dataset, assert faithfulness threshold
     cmds:
       - uv run pytest -v -m regression
