@@ -7,7 +7,6 @@ CREATE TABLE IF NOT EXISTS document_chunks (
     chunk_index  INTEGER NOT NULL,
     content      TEXT NOT NULL,
     embedding    vector(1536) NOT NULL,
-    metadata     JSONB DEFAULT '{}',
     UNIQUE (source, chunk_index)
 );
 

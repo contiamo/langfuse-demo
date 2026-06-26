@@ -18,7 +18,6 @@ class ParsedChunk:
     page: int | None
     chunk_index: int
     content: str
-    metadata: dict
 
 
 def _chunk(text: str) -> list[str]:
@@ -59,13 +58,7 @@ def parse_file(path: Path) -> list[ParsedChunk]:
     for page_text, page_no in pages:
         for chunk in _chunk(page_text):
             result.append(
-                ParsedChunk(
-                    source=path.name,
-                    page=page_no,
-                    chunk_index=idx,
-                    content=chunk,
-                    metadata={},
-                )
+                ParsedChunk(source=path.name, page=page_no, chunk_index=idx, content=chunk)
             )
             idx += 1
     return result

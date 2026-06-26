@@ -1,7 +1,6 @@
 """RAG agent — retrieval as a tool, served via PydanticAI's built-in web UI.
 
-Run with:  uvicorn rag.agent:app --host 127.0.0.1 --port 8001 --reload
-       or:  task dev
+Run with:  task dev  →  http://127.0.0.1:7932
 """
 import os
 
@@ -9,7 +8,7 @@ from pydantic_ai import Agent
 
 from rag import tracing
 from rag.config import get_settings
-from rag.ingestion.embed import LiteLLMEmbeddingService
+from rag.ingestion.embed import embed
 from rag.retrieval.repository import ChunkRepository
 
 settings = get_settings()
@@ -19,7 +18,6 @@ if key := settings.openai_api_key.get_secret_value():
 
 tracing.init(settings.langfuse_public_key, settings.langfuse_secret_key, settings.langfuse_host)
 
-_embedder = LiteLLMEmbeddingService(settings.embedding_model, settings.embedding_dimensions)
 _repo: ChunkRepository | None = None
 
 
@@ -46,7 +44,7 @@ Respond in the same language as the user's question.
 async def search_documents(query: str) -> str:
     """Search the Sherlock Holmes knowledge base for relevant passages."""
     repo = await _get_repo()
-    [vec] = await _embedder.embed([query])
+    [vec] = await embed([query], settings.embedding_model)
     chunks = await repo.similarity_search(vec, top_k=settings.retrieval_top_k)
 
     # v1 tracing: separate top-level retrieval trace

@@ -10,19 +10,15 @@ SUPPORTED = {".pdf", ".txt"}
 
 async def run(source_dir: Path) -> None:
     from rag.config import get_settings
-    from rag.ingestion.embed import LiteLLMEmbeddingService
+    from rag.ingestion.embed import embed
     from rag.ingestion.parse import parse_file
     from rag.retrieval.repository import ChunkRepository
 
     settings = get_settings()
-    if settings.openai_api_key.get_secret_value():
-        os.environ.setdefault("OPENAI_API_KEY", settings.openai_api_key.get_secret_value())
+    if key := settings.openai_api_key.get_secret_value():
+        os.environ.setdefault("OPENAI_API_KEY", key)
 
     repo = await ChunkRepository.create(settings.database_url)
-    embedder = LiteLLMEmbeddingService(
-        model=settings.embedding_model,
-        dimensions=settings.embedding_dimensions,
-    )
 
     files = sorted(p for p in source_dir.iterdir() if p.suffix.lower() in SUPPORTED)
     if not files:
@@ -36,7 +32,7 @@ async def run(source_dir: Path) -> None:
 
         for i in range(0, len(chunks), EMBED_BATCH_SIZE):
             batch = chunks[i : i + EMBED_BATCH_SIZE]
-            embeddings = await embedder.embed([c.content for c in batch])
+            embeddings = await embed([c.content for c in batch], settings.embedding_model)
             for chunk, embedding in zip(batch, embeddings):
                 await repo.upsert(
                     source=chunk.source,
@@ -44,7 +40,6 @@ async def run(source_dir: Path) -> None:
                     chunk_index=chunk.chunk_index,
                     content=chunk.content,
                     embedding=embedding,
-                    metadata=chunk.metadata,
                 )
             print(f"  upserted {i}–{i + len(batch) - 1}")
 

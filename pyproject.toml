@@ -27,7 +27,6 @@ packages = ["src/rag"]
 dev = [
     "pytest",
     "pytest-asyncio",
-    "httpx",
     "ruff",
 ]
 

@@ -1,3 +1,5 @@
+from functools import lru_cache
+
 from pydantic import SecretStr
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
@@ -9,7 +11,6 @@ class Settings(BaseSettings):
     openai_api_key: SecretStr = SecretStr("")
     llm_model: str = "gpt-4o-mini"
     embedding_model: str = "text-embedding-3-small"
-    embedding_dimensions: int = 1536
     retrieval_top_k: int = 5
 
     langfuse_public_key: str = ""
@@ -17,5 +18,6 @@ class Settings(BaseSettings):
     langfuse_host: str = "https://cloud.langfuse.com"
 
 
+@lru_cache(maxsize=1)
 def get_settings() -> Settings:
     return Settings()  # type: ignore[call-arg]
