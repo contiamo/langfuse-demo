@@ -16,20 +16,15 @@ tasks:
     cmds:
       - uv run rag-ingest --source-dir data/
 
-  run:
-    desc: Start API + frontend via Docker Compose
+  db:
+    desc: Start the database
     cmds:
-      - docker compose up -d
-
-  stop:
-    desc: Stop all Docker services
-    cmds:
-      - docker compose down
+      - docker compose up -d db
 
   dev:
-    desc: Start API in dev mode (requires running DB)
+    desc: Start the RAG agent with built-in web UI (http://localhost:7932)
     cmds:
-      - uv run uvicorn rag.app:create_app --factory --reload --host 0.0.0.0 --port 8001
+      - uv run uvicorn rag.agent:app --host 127.0.0.1 --port 7932 --reload
 
   lint:
     desc: Lint and format check

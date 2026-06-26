@@ -1,0 +1,30 @@
+- generic [ref=e2]:
+  - generic [ref=e3]:
+    - generic [ref=e6]:
+      - generic [ref=e7]:
+        - button "Toggle Sidebar" [ref=e8]:
+          - img
+          - generic [ref=e9]: Toggle Sidebar
+        - heading "Pydantic AI" [level=1] [ref=e11]:
+          - img [ref=e12]
+          - text: Pydantic AI
+      - generic [ref=e14]:
+        - list [ref=e15]:
+          - listitem [ref=e16]:
+            - link "New conversation" [ref=e17] [cursor=pointer]:
+              - /url: /
+              - img [ref=e18]
+              - generic [ref=e20]: New conversation
+        - generic:
+          - list
+      - button "Toggle theme" [ref=e22]:
+        - img
+        - generic [ref=e23]: Toggle theme
+    - generic [ref=e25]:
+      - log [ref=e26]
+      - generic [ref=e31]:
+        - textbox "What would you like to know?" [active] [ref=e32]
+        - generic [ref=e33]:
+          - button [disabled]:
+            - img
+  - region "Notifications alt+T"
