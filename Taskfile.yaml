@@ -1,0 +1,53 @@
+version: "3"
+
+tasks:
+  install:
+    desc: Install dependencies
+    cmds:
+      - uv sync --all-groups
+
+  migrate:
+    desc: Run database migrations
+    cmds:
+      - uv run rag-migrate
+
+  ingest:
+    desc: Ingest PDFs/TXTs from data/ into the vector DB
+    cmds:
+      - uv run rag-ingest --source-dir data/
+
+  run:
+    desc: Start API + frontend via Docker Compose
+    cmds:
+      - docker compose up -d
+
+  stop:
+    desc: Stop all Docker services
+    cmds:
+      - docker compose down
+
+  dev:
+    desc: Start API in dev mode (requires running DB)
+    cmds:
+      - uv run uvicorn rag.app:create_app --factory --reload --host 0.0.0.0 --port 8000
+
+  lint:
+    desc: Lint and format check
+    cmds:
+      - uv run ruff check src/ tests/
+      - uv run ruff format --check src/ tests/
+
+  format:
+    desc: Auto-format code
+    cmds:
+      - uv run ruff format src/ tests/
+
+  test:
+    desc: Run unit tests (no API key needed)
+    cmds:
+      - uv run pytest -v
+
+  "regression:test":
+    desc: Run eval dataset via Langfuse experiment, assert score thresholds
+    cmds:
+      - uv run pytest -v -m regression

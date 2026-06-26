@@ -1,0 +1,36 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>RAG Demo — Sherlock Holmes Q&amp;A</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@picocss/pico@2/css/pico.min.css" />
+    <link rel="stylesheet" href="style.css" />
+  </head>
+  <body>
+    <header class="container">
+      <h1>🔍 RAG Demo</h1>
+      <p>Ask questions about the Sherlock Holmes stories — powered by RAG + Langfuse</p>
+    </header>
+
+    <main class="container">
+      <div id="chat-messages" role="log" aria-live="polite" aria-label="Chat messages"></div>
+
+      <form id="chat-form">
+        <div class="grid">
+          <input
+            type="text"
+            id="question-input"
+            name="question"
+            placeholder="e.g. How did Holmes deduce Watson had been in Afghanistan?"
+            autocomplete="off"
+            required
+          />
+          <button type="submit" id="submit-btn">Ask</button>
+        </div>
+      </form>
+    </main>
+
+    <script type="module" src="app.js"></script>
+  </body>
+</html>
