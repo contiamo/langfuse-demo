@@ -17,6 +17,13 @@ def init(public_key: str, secret_key: str, host: str) -> None:
     global _langfuse
     if not public_key or not secret_key:
         return
+    import os
+
+    os.environ.setdefault("LANGFUSE_PUBLIC_KEY", public_key)
+    os.environ.setdefault("LANGFUSE_SECRET_KEY", secret_key)
+    os.environ.setdefault("LANGFUSE_HOST", host)
+
+    import langfuse.openai  # noqa: F401 — patches openai globally; auto-traces all LLM calls with tokens + cost
     from langfuse import Langfuse
 
     _langfuse = Langfuse(public_key=public_key, secret_key=secret_key, host=host)
