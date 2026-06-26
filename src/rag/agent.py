@@ -1,10 +1,13 @@
 """RAG agent — retrieval as a tool, served via PydanticAI's built-in web UI.
 
-Run with:  task dev  →  http://127.0.0.1:7932
+Run with:  task run  →  http://localhost:7932
+       or:  task dev  (local hot-reload, requires running DB)
 """
 import os
 
 from pydantic_ai import Agent
+from pydantic_ai.models.openai import OpenAIChatModel
+from pydantic_ai.providers.openai import OpenAIProvider
 
 from rag import tracing
 from rag.config import get_settings
@@ -18,6 +21,12 @@ if key := settings.openai_api_key.get_secret_value():
 
 tracing.init(settings.langfuse_public_key, settings.langfuse_secret_key, settings.langfuse_host)
 
+# Use Langfuse-wrapped OpenAI client if available, plain OpenAI otherwise.
+# This gives automatic per-request traces with input messages, output, tokens, and cost.
+_lf_client = tracing.get_openai_client()
+_provider = OpenAIProvider(openai_client=_lf_client) if _lf_client else OpenAIProvider()
+_model = OpenAIChatModel(settings.llm_model, provider=_provider)
+
 _repo: ChunkRepository | None = None
 
 
@@ -29,7 +38,7 @@ async def _get_repo() -> ChunkRepository:
 
 
 agent = Agent(
-    f"openai:{settings.llm_model}",
+    _model,
     instructions="""\
 You are a literary assistant specializing in the Sherlock Holmes stories by Arthur Conan Doyle.
 Always call search_documents first — answers must come from the retrieved passages only.
@@ -47,7 +56,6 @@ async def search_documents(query: str) -> str:
     [vec] = await embed([query], settings.embedding_model)
     chunks = await repo.similarity_search(vec, top_k=settings.retrieval_top_k)
 
-    # v1 tracing: separate top-level retrieval trace
     tracing.trace_retrieval(query, chunks)
 
     return "\n\n---\n\n".join(f"[{c.source}, p.{c.page}]\n{c.content}" for c in chunks)
