@@ -26,8 +26,9 @@ tasks:
     cmds:
       - docker compose down
 
-  dev:
+  run:
     desc: Start the RAG agent with built-in web UI (http://localhost:7932)
+    aliases: [dev]
     cmds:
       - uv run uvicorn rag.agent:app --host 127.0.0.1 --port 7932 --reload
 
