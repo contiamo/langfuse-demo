@@ -21,6 +21,11 @@ tasks:
     cmds:
       - docker compose up -d db
 
+  stop:
+    desc: Stop all Docker services
+    cmds:
+      - docker compose down
+
   dev:
     desc: Start the RAG agent with built-in web UI (http://localhost:7932)
     cmds:
