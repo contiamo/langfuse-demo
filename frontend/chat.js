@@ -1,4 +1,4 @@
-const CHAT_API = "http://localhost:8000/chat";
+const CHAT_API = "http://localhost:8001/chat";
 
 export async function streamChat(question, onToken, onDone, onError) {
   let response;

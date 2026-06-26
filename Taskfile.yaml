@@ -29,7 +29,7 @@ tasks:
   dev:
     desc: Start API in dev mode (requires running DB)
     cmds:
-      - uv run uvicorn rag.app:create_app --factory --reload --host 0.0.0.0 --port 8000
+      - uv run uvicorn rag.app:create_app --factory --reload --host 0.0.0.0 --port 8001
 
   lint:
     desc: Lint and format check
