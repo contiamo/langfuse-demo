@@ -27,9 +27,9 @@ tasks:
       - uv run rag-ingest --source-dir data/
 
   dev:
-    desc: Start the agent locally with hot-reload (requires running DB via task run or task db)
+    desc: Start locally with hot-reload (requires running DB via task db)
     cmds:
-      - uv run uvicorn rag.agent:app --host 127.0.0.1 --port 7932 --reload
+      - uv run uvicorn rag.app:app --host 127.0.0.1 --port 7932 --reload
 
   db:
     desc: Start only the database

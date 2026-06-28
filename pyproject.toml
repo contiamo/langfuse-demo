@@ -7,18 +7,21 @@ name = "rag-demo"
 version = "0.1.0"
 requires-python = ">=3.12"
 dependencies = [
+    "fastapi==0.115.*",
+    "uvicorn[standard]==0.34.*",
+    "sse-starlette==2.*",
     "pydantic-settings==2.9.*",
     "psycopg[binary]==3.2.*",
     "pgvector==0.3.*",
     "pypdf==5.*",
     "litellm==1.*",
-    "pydantic-ai[web]==2.*",
     "langfuse==2.*",
 ]
 
 [project.scripts]
 rag-ingest = "rag.ingestion.ingest:main"
 rag-migrate = "rag.migrations.run:main"
+rag-dev = "rag.app:main"
 
 [tool.hatch.build.targets.wheel]
 packages = ["src/rag"]

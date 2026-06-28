@@ -8,9 +8,10 @@ COPY pyproject.toml .
 RUN uv sync --no-dev --no-install-project
 
 COPY src/ src/
+COPY frontend/ frontend/
 RUN uv sync --no-dev
 
 ENV PATH="/app/.venv/bin:$PATH"
 
 EXPOSE 7932
-CMD ["uvicorn", "rag.agent:app", "--host", "0.0.0.0", "--port", "7932"]
+CMD ["uvicorn", "rag.app:app", "--host", "0.0.0.0", "--port", "7932"]
