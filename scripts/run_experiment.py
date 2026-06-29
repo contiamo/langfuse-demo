@@ -92,23 +92,26 @@ async def run(run_name: str, dataset_name: str, threshold: float | None) -> None
     for item in items:
         question = item.input["question"]
 
-        # item.observe() creates a trace linked to this dataset item and run
-        with item.observe(run_name=run_name) as trace:
-            trace.update(tags=[settings.llm_model, "sherlock-holmes", "experiment"])
+        # item.observe() yields the trace ID (str) and links it to the dataset run.
+        # We then create a proper trace client from that ID so stream_answer can attach spans.
+        with item.observe(run_name=run_name) as trace_id:
+            lf_trace = lf.trace(
+                id=trace_id,
+                name="rag_query",
+                input={"question": question},
+                tags=[settings.llm_model, "sherlock-holmes", "experiment"],
+                session_id=run_name,
+            )
 
             answer_parts: list[str] = []
-
-            async for token in stream_answer(question, repo, trace, settings):
+            async for token in stream_answer(question, repo, lf_trace, settings):
                 answer_parts.append(token)
-
             answer = "".join(answer_parts)
-            trace.update(output={"answer": answer})
 
         # Simple faithfulness judge — Langfuse's managed evaluator will also score async
         # using the full chunk content stored in the retrieval span
-        context = answer  # ponytail: answer as context proxy; swap with span content if needed
-        faith = await judge_faithfulness(question, context, answer, settings.llm_model)
-        lf.score(trace_id=trace.id, name="faithfulness", value=faith)
+        faith = await judge_faithfulness(question, answer, answer, settings.llm_model)
+        lf.score(trace_id=trace_id, name="faithfulness", value=faith)
 
         scores.append(faith)
         status = "✓" if faith == 1.0 else "✗"
