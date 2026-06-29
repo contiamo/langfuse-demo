@@ -1,8 +1,9 @@
 import litellm
 
 
-async def embed(texts: list[str], model: str) -> list[list[float]]:
-    response = await litellm.aembedding(model=model, input=texts)
+async def embed(texts: list[str], model: str, trace_id: str | None = None) -> list[list[float]]:
+    metadata = {"existing_trace_id": trace_id} if trace_id else {}
+    response = await litellm.aembedding(model=model, input=texts, metadata=metadata)
     return [item["embedding"] for item in response.data]
 
 

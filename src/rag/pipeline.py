@@ -28,8 +28,9 @@ async def stream_answer(
     t0 = time.monotonic()
 
     trace = tracing.start_trace(question, session_id, settings.llm_model)
+    trace_id = trace.id if trace else None
 
-    [vec] = await embed([question], settings.embedding_model)
+    [vec] = await embed([question], settings.embedding_model, trace_id=trace_id)
     chunks = await repo.similarity_search(
         vec, top_k=settings.retrieval_top_k, min_similarity=settings.retrieval_min_similarity
     )
