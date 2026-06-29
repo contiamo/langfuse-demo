@@ -40,15 +40,15 @@ def start_trace(question: str, session_id: str | None, model: str):
     )
 
 
-def record_retrieval(trace, chunks: list[Chunk], latency_ms: float) -> None:
+def record_retrieval(trace, chunks: list[Chunk], start_time, end_time) -> None:
     if not trace:
         return
-    span = trace.span(name="retrieval")
+    latency_ms = (end_time - start_time).total_seconds() * 1000
+    span = trace.span(name="retrieval", start_time=start_time, end_time=end_time)
     span.update(
         output={"num_chunks": len(chunks), "sources": [c.source for c in chunks]},
         metadata={"latency_ms": round(latency_ms, 1)},
     )
-    span.end()
 
 
 def end_trace(trace, ttft_ms: float | None, total_ms: float) -> None:

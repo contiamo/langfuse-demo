@@ -1,6 +1,7 @@
 """Core RAG logic: embed → retrieve → stream LLM response."""
 import time
 from collections.abc import AsyncIterator
+from datetime import UTC, datetime
 
 import litellm
 
@@ -31,11 +32,13 @@ async def stream_answer(
     trace_id = trace.id if trace else None
 
     [vec] = await embed([question], settings.embedding_model, trace_id=trace_id)
+
+    t_search_start = datetime.now(UTC)
     chunks = await repo.similarity_search(
         vec, top_k=settings.retrieval_top_k, min_similarity=settings.retrieval_min_similarity
     )
-    retrieval_ms = (time.monotonic() - t0) * 1000
-    tracing.record_retrieval(trace, chunks, retrieval_ms)
+    t_search_end = datetime.now(UTC)
+    tracing.record_retrieval(trace, chunks, t_search_start, t_search_end)
 
     metadata = {"existing_trace_id": trace.id} if trace else {}
 
