@@ -3,10 +3,7 @@
 This is the starting point. Participants will progressively improve this
 toward a single structured trace per turn in v2.
 """
-from typing import TYPE_CHECKING
-
-if TYPE_CHECKING:
-    from rag.retrieval.repository import Chunk
+from rag.retrieval.repository import Chunk
 
 _langfuse = None
 
