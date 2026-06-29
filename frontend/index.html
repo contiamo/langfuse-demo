@@ -313,6 +313,8 @@
 </main>
 
 <script>
+  const SESSION_ID = crypto.randomUUID(); // groups all turns of this tab into one Langfuse session
+
   const messagesEl = document.getElementById('messages');
   const form = document.getElementById('form');
   const input = document.getElementById('input');
@@ -365,7 +367,7 @@
       const res = await fetch('/chat', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ question }),
+        body: JSON.stringify({ question, session_id: SESSION_ID }),
       });
       const reader = res.body.getReader();
       const dec = new TextDecoder();

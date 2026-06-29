@@ -1,7 +1,9 @@
-"""Langfuse instrumentation — v1: two separate top-level traces, nothing linked.
+"""Langfuse instrumentation — v2: one trace per turn, child spans, latency, tags.
 
-This is the starting point. Participants will progressively improve this
-toward a single structured trace per turn in v2.
+Structure per turn:
+  trace "rag_query"  (session_id, tags: [model, "sherlock-holmes"])
+    ├── span  "retrieval"   — latency_ms, num_chunks, sources
+    └── generation (litellm) — input messages, output, tokens, cost, TTFT
 """
 import litellm
 
@@ -27,8 +29,34 @@ def init(public_key: str, secret_key: str, host: str) -> None:
     litellm.success_callback = ["langfuse"]
 
 
-def trace_retrieval(question: str, chunks: list[Chunk]) -> None:
+def start_trace(question: str, session_id: str | None, model: str):
     if not _langfuse:
+        return None
+    return _langfuse.trace(
+        name="rag_query",
+        input={"question": question},
+        session_id=session_id,
+        tags=[model, "sherlock-holmes"],
+    )
+
+
+def record_retrieval(trace, chunks: list[Chunk], latency_ms: float) -> None:
+    if not trace:
         return
-    t = _langfuse.trace(name="retrieval", input={"question": question})
-    t.update(output={"num_chunks": len(chunks), "sources": [c.source for c in chunks]})
+    span = trace.span(name="retrieval")
+    span.update(
+        output={"num_chunks": len(chunks), "sources": [c.source for c in chunks]},
+        metadata={"latency_ms": round(latency_ms, 1)},
+    )
+    span.end()
+
+
+def end_trace(trace, ttft_ms: float | None, total_ms: float) -> None:
+    if not trace:
+        return
+    trace.update(
+        metadata={
+            "ttft_ms": round(ttft_ms, 1) if ttft_ms else None,
+            "total_latency_ms": round(total_ms, 1),
+        }
+    )

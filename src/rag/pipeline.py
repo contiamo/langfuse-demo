@@ -1,4 +1,5 @@
 """Core RAG logic: embed → retrieve → stream LLM response."""
+import time
 from collections.abc import AsyncIterator
 
 import litellm
@@ -20,15 +21,25 @@ def _context(chunks: list[Chunk]) -> str:
     return "\n\n---\n\n".join(f"[{c.source}, p.{c.page}]\n{c.content}" for c in chunks)
 
 
-async def stream_answer(question: str, repo: ChunkRepository) -> AsyncIterator[str]:
+async def stream_answer(
+    question: str, repo: ChunkRepository, session_id: str | None = None
+) -> AsyncIterator[str]:
     settings = get_settings()
+    t0 = time.monotonic()
+
+    trace = tracing.start_trace(question, session_id, settings.llm_model)
 
     [vec] = await embed([question], settings.embedding_model)
     chunks = await repo.similarity_search(
         vec, top_k=settings.retrieval_top_k, min_similarity=settings.retrieval_min_similarity
     )
+    retrieval_ms = (time.monotonic() - t0) * 1000
+    tracing.record_retrieval(trace, chunks, retrieval_ms)
 
-    tracing.trace_retrieval(question, chunks)
+    metadata = {"existing_trace_id": trace.id} if trace else {}
+
+    t1 = time.monotonic()
+    ttft_ms: float | None = None
 
     response = await litellm.acompletion(
         model=settings.llm_model,
@@ -37,7 +48,12 @@ async def stream_answer(question: str, repo: ChunkRepository) -> AsyncIterator[s
             {"role": "user", "content": question},
         ],
         stream=True,
+        metadata=metadata,
     )
     async for chunk in response:
         if delta := chunk.choices[0].delta.content:
+            if ttft_ms is None:
+                ttft_ms = (time.monotonic() - t1) * 1000
             yield delta
+
+    tracing.end_trace(trace, ttft_ms, (time.monotonic() - t0) * 1000)
