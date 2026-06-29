@@ -234,6 +234,25 @@
 
   @keyframes blink { 50% { opacity: 0; } }
 
+  /* Feedback buttons */
+  .feedback {
+    display: flex;
+    gap: 0.35rem;
+    margin-top: 0.4rem;
+    padding-left: 0.25rem;
+  }
+  .thumb {
+    background: none;
+    border: 1px solid var(--rule);
+    padding: 0.2rem 0.5rem;
+    font-size: 0.75rem;
+    cursor: pointer;
+    color: var(--muted);
+    font-family: system-ui, sans-serif;
+  }
+  .thumb:hover { border-color: var(--berry); color: var(--berry); }
+  .thumb.voted { border-color: var(--berry); color: var(--berry); opacity: 0.5; cursor: default; }
+
   /* ── FORM ─────────────────────────────────────────────── */
   form { display: flex; border-top: 1px solid var(--rule); flex-shrink: 0; }
   input[type=text] {
@@ -356,12 +375,34 @@
     return bubble;
   }
 
+  function addFeedback(row, traceId) {
+    const fb = document.createElement('div');
+    fb.className = 'feedback';
+    [['👍', 1], ['👎', -1]].forEach(([label, value]) => {
+      const btn = document.createElement('button');
+      btn.className = 'thumb';
+      btn.textContent = label;
+      btn.onclick = () => {
+        if (btn.classList.contains('voted')) return;
+        fetch('/feedback', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ trace_id: traceId, value }),
+        });
+        fb.querySelectorAll('.thumb').forEach(b => b.classList.add('voted'));
+      };
+      fb.appendChild(btn);
+    });
+    row.appendChild(fb);
+  }
+
   async function ask(question) {
     if (sendBtn.disabled) return;
     input.value = '';
     sendBtn.disabled = true;
     addMsg(question, 'user');
     const reply = addMsg('', 'assistant streaming');
+    let traceId = null;
 
     try {
       const res = await fetch('/chat', {
@@ -382,8 +423,9 @@
           if (!line.startsWith('data: ')) continue;
           const payload = line.slice(6).trim();
           if (payload === '[DONE]') break;
-          const { delta } = JSON.parse(payload);
-          if (delta) reply.textContent += delta;
+          const data = JSON.parse(payload);
+          if (data.trace_id) { traceId = data.trace_id; continue; }
+          if (data.delta) reply.textContent += data.delta;
         }
         reply.parentElement.scrollIntoView({ behavior: 'smooth', block: 'end' });
       }
@@ -391,6 +433,7 @@
       reply.textContent = 'Error: ' + err.message;
     }
     reply.classList.remove('streaming');
+    if (traceId) addFeedback(reply.parentElement, traceId);
     sendBtn.disabled = false;
     input.focus();
   }

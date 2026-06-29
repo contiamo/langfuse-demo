@@ -56,3 +56,8 @@ tasks:
     desc: Run eval dataset, assert faithfulness threshold
     cmds:
       - uv run pytest -v -m regression
+
+  "dataset:seed":
+    desc: Create eval dataset from recent Langfuse traces (requires LANGFUSE credentials)
+    cmds:
+      - uv run python scripts/seed_dataset.py

@@ -6,7 +6,6 @@ from datetime import UTC, datetime
 import litellm
 
 from rag import tracing
-from rag.config import get_settings
 from rag.ingestion.embed import embed
 from rag.retrieval.repository import Chunk, ChunkRepository
 
@@ -23,13 +22,10 @@ def _context(chunks: list[Chunk]) -> str:
 
 
 async def stream_answer(
-    question: str, repo: ChunkRepository, session_id: str | None = None
+    question: str, repo: ChunkRepository, trace, settings
 ) -> AsyncIterator[str]:
-    settings = get_settings()
-    t0 = time.monotonic()
-
-    trace = tracing.start_trace(question, session_id, settings.llm_model)
     trace_id = trace.id if trace else None
+    t0 = time.monotonic()
 
     [vec] = await embed([question], settings.embedding_model, trace_id=trace_id)
 
@@ -40,10 +36,11 @@ async def stream_answer(
     t_search_end = datetime.now(UTC)
     tracing.record_retrieval(trace, chunks, t_search_start, t_search_end)
 
-    metadata = {"existing_trace_id": trace.id} if trace else {}
+    metadata = {"existing_trace_id": trace_id} if trace_id else {}
 
     t1 = time.monotonic()
     ttft_ms: float | None = None
+    answer_parts: list[str] = []
 
     response = await litellm.acompletion(
         model=settings.llm_model,
@@ -58,6 +55,7 @@ async def stream_answer(
         if delta := chunk.choices[0].delta.content:
             if ttft_ms is None:
                 ttft_ms = (time.monotonic() - t1) * 1000
+            answer_parts.append(delta)
             yield delta
 
-    tracing.end_trace(trace, ttft_ms, (time.monotonic() - t0) * 1000)
+    tracing.end_trace(trace, ttft_ms, (time.monotonic() - t0) * 1000, "".join(answer_parts))

@@ -20,6 +20,11 @@ class ChatRequest(BaseModel):
     session_id: str | None = None
 
 
+class FeedbackRequest(BaseModel):
+    trace_id: str
+    value: int  # 1 = good, -1 = bad
+
+
 @asynccontextmanager
 async def lifespan(app: FastAPI) -> AsyncIterator[None]:
     settings = get_settings()
@@ -43,12 +48,23 @@ async def index() -> FileResponse:
 
 @app.post("/chat")
 async def chat(req: ChatRequest) -> StreamingResponse:
+    settings = get_settings()
+    trace = tracing.start_trace(req.question, req.session_id, settings.llm_model)
+
     async def events() -> AsyncIterator[str]:
-        async for token in stream_answer(req.question, app.state.repo, req.session_id):
+        if trace:
+            yield f"data: {json.dumps({'trace_id': trace.id})}\n\n"
+        async for token in stream_answer(req.question, app.state.repo, trace, settings):
             yield f"data: {json.dumps({'delta': token})}\n\n"
         yield "data: [DONE]\n\n"
 
     return StreamingResponse(events(), media_type="text/event-stream")
+
+
+@app.post("/feedback")
+async def feedback(req: FeedbackRequest) -> dict:
+    tracing.score_feedback(req.trace_id, req.value)
+    return {"ok": True}
 
 
 @app.get("/health")

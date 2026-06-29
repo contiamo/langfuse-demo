@@ -1,9 +1,10 @@
-"""Langfuse instrumentation — v2: one trace per turn, child spans, latency, tags.
+"""Langfuse instrumentation — v3: full trace output for dataset building.
 
 Structure per turn:
-  trace "rag_query"  (session_id, tags: [model, "sherlock-holmes"])
-    ├── span  "retrieval"   — latency_ms, num_chunks, sources
-    └── generation (litellm) — input messages, output, tokens, cost, TTFT
+  trace "rag_query"  (input: question, output: answer, session_id, tags)
+    ├── span  "retrieval"   — chunk content, latency_ms
+    ├── generation (embed)  — linked via existing_trace_id
+    └── generation (llm)    — linked via existing_trace_id, tokens, cost, TTFT
 """
 import litellm
 
@@ -25,7 +26,6 @@ def init(public_key: str, secret_key: str, host: str) -> None:
     from langfuse import Langfuse
 
     _langfuse = Langfuse(public_key=public_key, secret_key=secret_key, host=host)
-    # auto-traces every LLM call: input, output, tokens, cost
     litellm.success_callback = ["langfuse"]
 
 
@@ -46,17 +46,30 @@ def record_retrieval(trace, chunks: list[Chunk], start_time, end_time) -> None:
     latency_ms = (end_time - start_time).total_seconds() * 1000
     span = trace.span(name="retrieval", start_time=start_time, end_time=end_time)
     span.update(
-        output={"num_chunks": len(chunks), "sources": [c.source for c in chunks]},
+        output={
+            "num_chunks": len(chunks),
+            "chunks": [
+                {"source": c.source, "page": c.page, "content": c.content}
+                for c in chunks
+            ],
+        },
         metadata={"latency_ms": round(latency_ms, 1)},
     )
 
 
-def end_trace(trace, ttft_ms: float | None, total_ms: float) -> None:
+def end_trace(trace, ttft_ms: float | None, total_ms: float, answer: str = "") -> None:
     if not trace:
         return
     trace.update(
+        output={"answer": answer} if answer else None,
         metadata={
             "ttft_ms": round(ttft_ms, 1) if ttft_ms else None,
             "total_latency_ms": round(total_ms, 1),
-        }
+        },
     )
+
+
+def score_feedback(trace_id: str, value: int) -> None:
+    if not _langfuse:
+        return
+    _langfuse.score(trace_id=trace_id, name="user_feedback", value=value)
