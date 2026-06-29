@@ -1,0 +1,600 @@
+<meta charset="utf-8">
+<title>Evaluation Datasets, Scoring & Experiments — Workshop Slides</title>
+<meta name="description" content="90-minute merged session: build a dataset, wire scoring, run experiments, gate with CI.">
+<style>
+:root {
+  --night:     #1A1321;
+  --berry:     #7E1C42;
+  --gold:      #C8924C;
+  --parchment: #EDE8DF;
+  --ink:       #1D1422;
+  --chalk:     #F4F1EC;
+  --rule:      #D4CCBC;
+  --muted:     #8A7E72;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+html, body { width: 100%; height: 100%; background: #0D0A10; overflow: hidden; font-family: Georgia, 'Times New Roman', serif; }
+.deck { width: 100vw; height: 100vh; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 12px; }
+.stage-wrap { position: relative; }
+.slide-canvas { position: absolute; top: 0; left: 0; width: 800px; height: 450px; transform-origin: top left; overflow: hidden; display: none; }
+.slide-canvas.active { display: block; }
+.controls { display: flex; align-items: center; gap: 12px; flex-shrink: 0; }
+.ctrl-btn { background: none; border: 1px solid rgba(244,241,236,0.18); color: rgba(244,241,236,0.55); width: 32px; height: 32px; cursor: pointer; font-size: 14px; display: flex; align-items: center; justify-content: center; }
+.ctrl-btn:hover:not(:disabled) { background: rgba(244,241,236,0.08); }
+.ctrl-btn:disabled { opacity: 0.2; cursor: default; }
+.ctrl-counter { font-family: 'SF Mono','Menlo',monospace; font-size: 11px; color: rgba(244,241,236,0.3); min-width: 52px; text-align: center; font-variant-numeric: tabular-nums; user-select: none; }
+
+/* ── SECTION DIVIDER ── */
+.s-div { width: 800px; height: 450px; display: grid; grid-template-rows: 290px 160px; }
+.s-div-top { background: var(--berry); padding: 0 60px; display: flex; flex-direction: column; justify-content: center; }
+.s-div-eyebrow { font-family: system-ui,sans-serif; font-weight: 600; font-size: 9px; letter-spacing: 0.14em; text-transform: uppercase; color: rgba(200,146,76,0.85); margin-bottom: 14px; }
+.s-div-title { font-weight: bold; color: white; line-height: 1.06; }
+.s-div-bottom { background: var(--night); padding: 0 60px; display: flex; align-items: center; }
+.s-div-meta { font-family: system-ui,sans-serif; font-size: 10px; letter-spacing: 0.06em; text-transform: uppercase; color: rgba(244,241,236,0.28); }
+.s-div-meta strong { color: rgba(244,241,236,0.45); font-weight: 600; }
+
+/* ── BREAK ── */
+.s-break { width: 800px; height: 450px; background: var(--night); display: flex; flex-direction: column; align-items: center; justify-content: center; }
+.s-break-eyebrow { font-family: system-ui,sans-serif; font-weight: 600; font-size: 9px; letter-spacing: 0.18em; text-transform: uppercase; color: var(--gold); margin-bottom: 16px; }
+.s-break-rule { width: 40px; height: 1px; background: var(--gold); opacity: 0.5; margin-bottom: 20px; }
+.s-break-title { font-size: 52px; font-weight: bold; font-style: italic; color: var(--chalk); line-height: 1; }
+.s-break-dur { font-family: system-ui,sans-serif; font-size: 10px; color: rgba(244,241,236,0.22); margin-top: 20px; letter-spacing: 0.1em; text-transform: uppercase; }
+
+/* ── CODE SLIDE ── */
+.s-code { width: 800px; height: 450px; display: flex; flex-direction: column; }
+.s-code-header { background: var(--night); height: 50px; flex-shrink: 0; padding: 0 28px; display: flex; align-items: center; gap: 14px; }
+.s-code-eyebrow { font-family: system-ui,sans-serif; font-size: 8px; font-weight: 700; letter-spacing: 0.16em; text-transform: uppercase; color: var(--gold); white-space: nowrap; }
+.s-code-sep { color: rgba(244,241,236,0.2); font-size: 14px; }
+.s-code-title { font-size: 18px; font-weight: bold; color: var(--chalk); line-height: 1; }
+.s-code-file { font-family: 'SF Mono','Menlo',monospace; font-size: 9px; color: rgba(200,146,76,0.55); margin-left: auto; white-space: nowrap; }
+.s-code-body { flex: 1; display: grid; grid-template-columns: 272px 528px; }
+.s-code-left { background: var(--parchment); padding: 14px 16px 14px 22px; display: flex; flex-direction: column; gap: 6px; border-right: 1px solid rgba(212,204,188,0.4); overflow: hidden; }
+.s-code-label { font-family: system-ui,sans-serif; font-size: 7.5px; font-weight: 700; letter-spacing: 0.14em; text-transform: uppercase; color: var(--berry); margin-top: 8px; }
+.s-code-label:first-child { margin-top: 0; }
+.s-code-text { font-size: 10.5px; color: var(--ink); line-height: 1.52; }
+.s-code-right { background: #13101C; padding: 10px 16px; overflow: hidden; }
+pre.s-pre { font-family: 'SF Mono','Menlo','Consolas',monospace; font-size: 9.5px; line-height: 1.5; color: #A8BECE; white-space: pre; margin: 0; }
+.ck { color: #9B7EA8; } .cf { color: var(--gold); } .cm { color: #6AAFB0; }
+.cs { color: #78A870; } .cc { color: #3A5468; } .cn { color: #C8814C; }
+.ch { color: rgba(200,146,76,0.55); font-style: italic; }
+.cj { color: #5A8A9A; } .cv { color: #78A870; }
+
+/* ── ANATOMY ── */
+.s-anatomy { width: 800px; height: 450px; display: flex; flex-direction: column; background: var(--parchment); }
+.s-anat-header { background: var(--night); height: 50px; flex-shrink: 0; padding: 0 28px; display: flex; align-items: center; justify-content: space-between; }
+.s-anat-title { font-size: 19px; font-weight: bold; color: var(--chalk); }
+.s-anat-sub { font-family: system-ui,sans-serif; font-size: 9px; color: rgba(200,146,76,0.65); letter-spacing: 0.1em; text-transform: uppercase; }
+.s-anat-body { flex: 1; display: grid; grid-template-columns: 1fr 1fr; grid-template-rows: 1fr 1fr; gap: 8px; padding: 14px 28px; }
+.s-anat-zone { background: white; border: 1px solid var(--rule); padding: 12px 14px; display: flex; flex-direction: column; gap: 5px; }
+.s-anat-zone.req { border-left: 3px solid var(--berry); }
+.s-anat-zone.opt { border-left: 3px solid rgba(200,146,76,0.5); }
+.s-anat-zone-label { font-family: system-ui,sans-serif; font-size: 8px; font-weight: 700; letter-spacing: 0.13em; text-transform: uppercase; color: var(--berry); }
+.s-anat-zone.opt .s-anat-zone-label { color: #9A6020; }
+.s-anat-zone-name { font-size: 14px; font-weight: bold; color: var(--ink); }
+.s-anat-zone-desc { font-size: 10.5px; color: var(--muted); line-height: 1.45; }
+.s-anat-zone-eg { font-family: 'SF Mono','Menlo',monospace; font-size: 9.5px; color: rgba(29,20,34,0.55); background: rgba(29,20,34,0.04); padding: 4px 7px; margin-top: 3px; line-height: 1.4; }
+
+/* ── CARD GRID (sources / tiers) ── */
+.s-cards { width: 800px; height: 450px; background: var(--parchment); padding: 28px 36px 24px; display: flex; flex-direction: column; }
+.s-eyebrow { display: flex; align-items: center; gap: 7px; margin-bottom: 10px; }
+.s-eyebrow-sq { width: 9px; height: 9px; background: var(--berry); flex-shrink: 0; }
+.s-eyebrow-text { font-family: system-ui,sans-serif; font-weight: 600; font-size: 9px; letter-spacing: 0.13em; text-transform: uppercase; color: var(--berry); }
+.s-h1 { font-size: 28px; font-weight: bold; color: var(--ink); line-height: 1.07; margin-bottom: 16px; }
+.s-card-row { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; flex: 1; }
+.s-card { background: white; border-top: 3px solid var(--berry); padding: 14px 16px; display: flex; flex-direction: column; gap: 8px; }
+.s-card.active { background: var(--berry); border-top-color: var(--gold); }
+.s-card-num { font-size: 32px; font-weight: bold; color: var(--berry); line-height: 1; }
+.s-card.active .s-card-num { color: var(--gold); }
+.s-card-title { font-size: 13px; font-weight: bold; color: var(--ink); line-height: 1.2; }
+.s-card.active .s-card-title { color: white; }
+.s-card hr { border: none; border-top: 1px solid rgba(0,0,0,0.1); }
+.s-card.active hr { border-top-color: rgba(255,255,255,0.2); }
+.s-card-sub { font-family: system-ui,sans-serif; font-size: 9px; font-weight: 700; color: var(--gold); }
+.s-card-body { font-size: 10.5px; color: var(--ink); line-height: 1.45; list-style: none; display: flex; flex-direction: column; gap: 4px; }
+.s-card.active .s-card-body { color: rgba(244,241,236,0.88); }
+.s-card-body li::before { content: "– "; color: var(--rule); }
+.s-card.active .s-card-body li::before { color: rgba(255,255,255,0.3); }
+.s-card-tip { font-size: 9.5px; font-style: italic; color: rgba(29,20,34,0.45); margin-top: auto; }
+.s-card.active .s-card-tip { color: rgba(244,241,236,0.45); }
+
+/* ── ROWS (score configs, UI steps) ── */
+.s-rows-slide { width: 800px; height: 450px; background: var(--parchment); padding: 28px 44px 22px; display: flex; flex-direction: column; }
+.s-rows { display: flex; flex-direction: column; gap: 7px; flex: 1; }
+.s-row { background: white; border: 1px solid var(--rule); padding: 10px 16px; display: flex; align-items: baseline; gap: 14px; }
+.s-row-label { font-size: 12px; font-weight: bold; color: var(--ink); flex-shrink: 0; min-width: 185px; }
+.s-row-accent { color: var(--berry); }
+.s-row-sub { font-style: italic; font-size: 11px; color: rgba(29,20,34,0.5); line-height: 1.4; }
+.s-callout { font-size: 13px; font-weight: bold; font-style: italic; color: var(--berry); margin-top: 14px; line-height: 1.4; }
+
+/* ── STATEMENT / LAB ── */
+.s-statement { width: 800px; height: 450px; background: var(--parchment); padding: 44px 56px; display: flex; flex-direction: column; justify-content: center; }
+.s-stmt-eyebrow { display: flex; align-items: center; gap: 7px; margin-bottom: 20px; }
+.s-stmt-eyebrow-sq { width: 9px; height: 9px; background: var(--berry); flex-shrink: 0; }
+.s-stmt-eyebrow-text { font-family: system-ui,sans-serif; font-weight: 600; font-size: 9px; letter-spacing: 0.13em; text-transform: uppercase; color: var(--berry); }
+.s-stmt-h1 { font-size: 42px; font-weight: bold; color: var(--ink); line-height: 1.05; margin-bottom: 18px; }
+.s-stmt-sub { font-style: italic; font-size: 14px; color: rgba(29,20,34,0.5); line-height: 1.6; }
+.s-stmt-sub ul { list-style: none; display: flex; flex-direction: column; gap: 8px; margin-top: 14px; }
+.s-stmt-sub li { padding-left: 18px; position: relative; }
+.s-stmt-sub li::before { content: "→"; position: absolute; left: 0; color: var(--berry); }
+.mono { font-family: 'SF Mono','Menlo',monospace; font-size: 12px; background: rgba(29,20,34,0.07); padding: 1px 6px; font-style: normal; }
+</style>
+
+<div class="deck">
+  <div class="stage-wrap" id="stage">
+
+    <!-- ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ -->
+    <!-- BLOCK A: BUILDING EVALUATION DATASETS       -->
+    <!-- ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ -->
+
+    <!-- 1. SESSION TITLE -->
+    <div class="slide-canvas"><div class="s-div">
+      <div class="s-div-top">
+        <div class="s-div-eyebrow">14:15 – 16:00 · 90 minutes · Hands-on · v3-evaluation</div>
+        <div class="s-div-title" style="font-size:54px;">The Evaluation<br>Loop</div>
+      </div>
+      <div class="s-div-bottom"><div class="s-div-meta"><strong>Block A</strong> &nbsp;Building Evaluation Datasets &nbsp;·&nbsp; ☕ Break &nbsp;·&nbsp; <strong>Block B</strong> &nbsp;Scoring &amp; Experiments</div></div>
+    </div></div>
+
+    <!-- 2. BLOCK A DIVIDER -->
+    <div class="slide-canvas"><div class="s-div">
+      <div class="s-div-top">
+        <div class="s-div-eyebrow">14:15 · 45 minutes · Hands-on</div>
+        <div class="s-div-title" style="font-size:40px;">Block A: Building<br>Evaluation Datasets<br>from Your Traces</div>
+      </div>
+      <div class="s-div-bottom"><div class="s-div-meta"><strong>Branch</strong> &nbsp;v3-evaluation &nbsp;·&nbsp; <strong>Scripts</strong> &nbsp;scripts/seed_dataset.py · data/eval_set.json</div></div>
+    </div></div>
+
+    <!-- 2. ANATOMY -->
+    <div class="slide-canvas"><div class="s-anatomy">
+      <div class="s-anat-header">
+        <span class="s-anat-title">Anatomy of a dataset item</span>
+        <span class="s-anat-sub">For a RAG application</span>
+      </div>
+      <div class="s-anat-body">
+        <div class="s-anat-zone req">
+          <div class="s-anat-zone-label">Required — input</div>
+          <div class="s-anat-zone-name">User question</div>
+          <div class="s-anat-zone-desc">The prompt sent to the system. This is what gets re-run against every experiment iteration.</div>
+          <div class="s-anat-zone-eg">"Where does Holmes live, and who<br>does he share his lodgings with?"</div>
+        </div>
+        <div class="s-anat-zone opt">
+          <div class="s-anat-zone-label">Optional — expected output</div>
+          <div class="s-anat-zone-name">Reference answer</div>
+          <div class="s-anat-zone-desc">The correct answer. Used by LLM judges comparing output against ground truth. You fill this in during the lab.</div>
+          <div class="s-anat-zone-eg">"221B Baker Street, with Dr. Watson"</div>
+        </div>
+        <div class="s-anat-zone opt">
+          <div class="s-anat-zone-label">Optional — metadata</div>
+          <div class="s-anat-zone-name">Retrieved context</div>
+          <div class="s-anat-zone-desc">The chunks that came back from retrieval. Needed for faithfulness scoring — did the answer stay grounded in the source?</div>
+          <div class="s-anat-zone-eg">"[study.txt, p.3]\nWe met next day..."</div>
+        </div>
+        <div class="s-anat-zone opt">
+          <div class="s-anat-zone-label">Optional — link</div>
+          <div class="s-anat-zone-name">source_trace_id</div>
+          <div class="s-anat-zone-desc">The Langfuse trace this item came from. Full traceability: which production request does this test case represent?</div>
+          <div class="s-anat-zone-eg">source_trace_id="trace-abc123"</div>
+        </div>
+      </div>
+    </div></div>
+
+    <!-- 3. THREE SOURCES -->
+    <div class="slide-canvas"><div class="s-cards">
+      <div class="s-eyebrow"><div class="s-eyebrow-sq"></div><span class="s-eyebrow-text">Dataset curation — over-represent failure modes</span></div>
+      <div class="s-h1">Three sources for dataset items</div>
+      <div class="s-card-row">
+        <div class="s-card active">
+          <div class="s-card-num">01</div>
+          <div class="s-card-title">Hand-curated failures</div>
+          <hr>
+          <div class="s-card-sub">Highest signal</div>
+          <ul class="s-card-body">
+            <li>Browse your v2 session traces</li>
+            <li>Flag responses that are wrong, vague, or hallucinated</li>
+            <li>Add via UI or SDK with <code style="font-family:monospace;font-size:9px;">source_trace_id</code></li>
+          </ul>
+          <div class="s-card-tip">Production traffic skews happy-path. Hunting failures corrects this bias.</div>
+        </div>
+        <div class="s-card">
+          <div class="s-card-num">02</div>
+          <div class="s-card-title">Sampled traces via seed</div>
+          <hr>
+          <div class="s-card-sub">Covered by task dataset:seed</div>
+          <ul class="s-card-body">
+            <li>Pulls all traces tagged "sherlock-holmes"</li>
+            <li>Filters for complete input + output</li>
+            <li>Links each item to its source trace</li>
+          </ul>
+          <div class="s-card-tip">Represents real usage — balances the failure-mode items.</div>
+        </div>
+        <div class="s-card">
+          <div class="s-card-num">03</div>
+          <div class="s-card-title">Synthetic edge cases</div>
+          <hr>
+          <div class="s-card-sub">Add manually in UI</div>
+          <ul class="s-card-body">
+            <li>Questions outside the corpus</li>
+            <li>Cross-story or multi-hop chains</li>
+            <li>Questions in another language</li>
+          </ul>
+          <div class="s-card-tip">Generate with LLM: "Write 5 questions the corpus probably can't answer."</div>
+        </div>
+      </div>
+    </div></div>
+
+    <!-- 4. CODE: seed_dataset.py -->
+    <div class="slide-canvas"><div class="s-code">
+      <div class="s-code-header">
+        <span class="s-code-eyebrow">task dataset:seed</span>
+        <span class="s-code-sep">·</span>
+        <span class="s-code-title">Bulk-create dataset items from this morning's traces</span>
+        <span class="s-code-file">scripts/seed_dataset.py</span>
+      </div>
+      <div class="s-code-body">
+        <div class="s-code-left">
+          <div class="s-code-label">What it does</div>
+          <div class="s-code-text">Fetches all traces tagged <code style="font-family:monospace;font-size:10px;">"sherlock-holmes"</code> from Langfuse (up to 50), filters for ones with both input and output, and creates dataset items — each linked to its source trace via <code style="font-family:monospace;font-size:10px;">source_trace_id</code>.</div>
+          <div class="s-code-label">After running</div>
+          <div class="s-code-text">Open Langfuse → Datasets → <code style="font-family:monospace;font-size:10px;">sherlock-eval</code>. Items appear with the question, the model's answer, and a link back to the original trace. <code style="font-family:monospace;font-size:10px;">expected_output</code> is blank — you fill that in for the items you know the right answer to.</div>
+        </div>
+        <div class="s-code-right"><pre class="s-pre"><span class="cc"># scripts/seed_dataset.py</span>
+lf = <span class="cf">Langfuse</span>(public_key=..., secret_key=...)
+
+<span class="cc"># 1. Pull recent traces with question + answer</span>
+traces = lf.<span class="cm">get_traces</span>(
+    tags=[<span class="cs">"sherlock-holmes"</span>],
+    limit=<span class="cn">50</span>,
+)
+candidates = [t <span class="ck">for</span> t <span class="ck">in</span> traces.data <span class="ck">if</span> t.input <span class="ck">and</span> t.output]
+
+<span class="cc"># 2. Create dataset if it doesn't exist (idempotent)</span>
+lf.<span class="cm">create_dataset</span>(name=<span class="cs">"sherlock-eval"</span>)
+
+<span class="cc"># 3. Add one item per trace — linked to source</span>
+<span class="ck">for</span> trace <span class="ck">in</span> candidates:
+    lf.<span class="cm">create_dataset_item</span>(
+        dataset_name=<span class="cs">"sherlock-eval"</span>,
+        input={<span class="cs">"question"</span>: trace.input[<span class="cs">"question"</span>]},
+        expected_output=<span class="cn">None</span>,    <span class="ch">← you fill this in</span>
+        source_trace_id=trace.id,  <span class="ch">← links to live trace</span>
+    )
+    <span class="cm">print</span>(<span class="cs">f"  + {trace.input['question'][:70]}"</span>)</pre></div>
+      </div>
+    </div></div>
+
+    <!-- 5. SCORE CONFIGS IN UI -->
+    <div class="slide-canvas"><div class="s-rows-slide">
+      <div class="s-eyebrow"><div class="s-eyebrow-sq"></div><span class="s-eyebrow-text">Before scoring — define your dimensions once</span></div>
+      <div class="s-h1">Score Configs: UI → Settings → Score Configs</div>
+      <div class="s-rows">
+        <div class="s-row">
+          <span class="s-row-label"><span class="s-row-accent">faithfulness</span> — numeric</span>
+          <span class="s-row-sub">0.0–1.0. Does the answer contain only information supported by the retrieved context? Used by LLM-as-Judge and RAGAS.</span>
+        </div>
+        <div class="s-row">
+          <span class="s-row-label"><span class="s-row-accent">completeness</span> — numeric</span>
+          <span class="s-row-sub">0.0–1.0. Does the answer address the full question, or does it dodge parts of it? Useful for multi-part questions.</span>
+        </div>
+        <div class="s-row">
+          <span class="s-row-label"><span class="s-row-accent">user_feedback</span> — numeric</span>
+          <span class="s-row-sub">0 or 1, written by the 👍/👎 buttons in the frontend. Already flowing into Langfuse — this config makes it visible in Score Analytics.</span>
+        </div>
+        <div class="s-row">
+          <span class="s-row-label"><span class="s-row-accent">retrieval_quality</span> — categorical</span>
+          <span class="s-row-sub">good / partial / poor. Annotated manually when reviewing dataset items — captures retrieval failures that faithfulness alone misses.</span>
+        </div>
+      </div>
+      <div class="s-callout">Define these now — every evaluator in Block B will write to the same Score Config names, making all sources directly comparable in Score Analytics.</div>
+    </div></div>
+
+    <!-- 6. LAB A -->
+    <div class="slide-canvas"><div class="s-statement">
+      <div class="s-stmt-eyebrow"><div class="s-stmt-eyebrow-sq"></div><span class="s-stmt-eyebrow-text">Lab A · ~15 minutes</span></div>
+      <div class="s-stmt-h1">Build your dataset.</div>
+      <div class="s-stmt-sub">
+        <ul>
+          <li>Run <span class="mono">task dataset:seed</span> — watch items appear in Langfuse → Datasets → sherlock-eval</li>
+          <li>Open 3–5 items where the answer looks weak. Add <span class="mono">expected_output</span> for items you know the right answer to.</li>
+          <li>Add 2–3 synthetic edge cases manually via the Langfuse UI (Datasets → + New item)</li>
+          <li>Create your Score Configs: UI → Settings → Score Configs → add <span class="mono">faithfulness</span>, <span class="mono">user_feedback</span></li>
+        </ul>
+      </div>
+    </div></div>
+
+    <!-- ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ -->
+    <!-- COFFEE BREAK                                -->
+    <!-- ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ -->
+
+    <!-- 7. COFFEE BREAK -->
+    <div class="slide-canvas"><div class="s-break">
+      <div class="s-break-eyebrow">15:00</div>
+      <div class="s-break-rule"></div>
+      <div class="s-break-title">Coffee Break</div>
+      <div class="s-break-dur">Back at 15:15 · 15 minutes</div>
+    </div></div>
+
+    <!-- ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ -->
+    <!-- BLOCK B: SCORING & EXPERIMENTS              -->
+    <!-- ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ -->
+
+    <!-- 9. BLOCK B DIVIDER -->
+    <div class="slide-canvas"><div class="s-div">
+      <div class="s-div-top">
+        <div class="s-div-eyebrow">15:15 · 45 minutes · Hands-on</div>
+        <div class="s-div-title" style="font-size:46px;">Block B: Scoring<br>&amp; Experiments</div>
+      </div>
+      <div class="s-div-bottom"><div class="s-div-meta"><strong>Scripts</strong> &nbsp;scripts/run_experiment.py &nbsp;·&nbsp; <strong>Tasks</strong> &nbsp;experiment:run · regression:test</div></div>
+    </div></div>
+
+    <!-- 9. THREE TIERS -->
+    <div class="slide-canvas"><div class="s-cards">
+      <div class="s-eyebrow"><div class="s-eyebrow-sq"></div><span class="s-eyebrow-text">Evaluation strategy — three tiers of signal</span></div>
+      <div class="s-h1">Scoring: three tiers, one Score table</div>
+      <div class="s-card-row">
+        <div class="s-card">
+          <div class="s-card-num">T1</div>
+          <div class="s-card-title">Human signals</div>
+          <hr>
+          <div class="s-card-sub">Already done ✓</div>
+          <ul class="s-card-body">
+            <li>👍/👎 in the frontend writes <code style="font-family:monospace;font-size:9px;">user_feedback</code> scores</li>
+            <li>Ground truth — use to calibrate automated judges</li>
+            <li>Zero cost, real signal</li>
+          </ul>
+          <div class="s-card-tip">This is why Score Configs matter — feedback lands in the same table as everything else.</div>
+        </div>
+        <div class="s-card">
+          <div class="s-card-num">T2</div>
+          <div class="s-card-title">Heuristics</div>
+          <hr>
+          <div class="s-card-sub">Already done ✓ (v2)</div>
+          <ul class="s-card-body">
+            <li>TTFT on every trace (v2 tracing)</li>
+            <li>Turn count via session grouping</li>
+            <li>Free, always on, no model cost</li>
+          </ul>
+          <div class="s-card-tip">Great smoke signals — slow TTFT or high turn count often correlates with quality issues.</div>
+        </div>
+        <div class="s-card active">
+          <div class="s-card-num">T3</div>
+          <div class="s-card-title">LLM-as-Judge</div>
+          <hr>
+          <div class="s-card-sub">Wiring up now ↓</div>
+          <ul class="s-card-body">
+            <li>Langfuse UI → Evaluators (auto, zero code)</li>
+            <li>RAGAS managed evaluators (faithfulness, recall)</li>
+            <li>Custom rubric evaluators</li>
+          </ul>
+          <div class="s-card-tip">Runs asynchronously on every new trace — scales to thousands per minute.</div>
+        </div>
+      </div>
+    </div></div>
+
+    <!-- 10. LANGFUSE EVALUATOR SETUP (UI, zero code) -->
+    <div class="slide-canvas"><div class="s-rows-slide">
+      <div class="s-eyebrow"><div class="s-eyebrow-sq"></div><span class="s-eyebrow-text">Tier 3 — UI → Evaluators → + Set up Evaluator</span></div>
+      <div class="s-h1">LLM-as-Judge: zero code required</div>
+      <div class="s-rows">
+        <div class="s-row">
+          <span class="s-row-label"><span class="s-row-accent">Step 1</span> — Choose evaluator</span>
+          <span class="s-row-sub">Pick <strong>RAGAS Faithfulness</strong> (managed — no prompt writing) or write a Custom evaluator with <code style="font-family:monospace;font-size:10px;">{{variable}}</code> placeholders.</span>
+        </div>
+        <div class="s-row">
+          <span class="s-row-label"><span class="s-row-accent">Step 2</span> — Set judge model</span>
+          <span class="s-row-sub">Under LLM Connections, pick a model that supports structured output — GPT-4o, Claude Sonnet, or Gemini Pro all work. Pin per evaluator.</span>
+        </div>
+        <div class="s-row">
+          <span class="s-row-label"><span class="s-row-accent">Step 3</span> — Map trace fields</span>
+          <span class="s-row-sub">Use JSONPath: <code style="font-family:monospace;font-size:10px;">input.question → {{input}}</code>, <code style="font-family:monospace;font-size:10px;">output.answer → {{output}}</code>, retrieval span output → <code style="font-family:monospace;font-size:10px;">{{context}}</code>. Use the live preview to verify.</span>
+        </div>
+        <div class="s-row">
+          <span class="s-row-label"><span class="s-row-accent">Step 4</span> — Save &amp; watch</span>
+          <span class="s-row-sub">The evaluator activates immediately. Every new trace from this point gets a <code style="font-family:monospace;font-size:10px;">faithfulness</code> score attached. Debug via Tracing → filter <code style="font-family:monospace;font-size:10px;">environment: langfuse-llm-as-a-judge</code>.</span>
+        </div>
+      </div>
+      <div class="s-callout">No deploy needed. The evaluator runs in Langfuse's cloud, not yours.</div>
+    </div></div>
+
+    <!-- 11. CODE: run_experiment.py -->
+    <div class="slide-canvas"><div class="s-code">
+      <div class="s-code-header">
+        <span class="s-code-eyebrow">task experiment:run</span>
+        <span class="s-code-sep">·</span>
+        <span class="s-code-title">Run dataset through live pipeline, store named run</span>
+        <span class="s-code-file">scripts/run_experiment.py</span>
+      </div>
+      <div class="s-code-body">
+        <div class="s-code-left">
+          <div class="s-code-label">What it does</div>
+          <div class="s-code-text">Pulls each dataset item, runs the question through the live RAG pipeline, stores the result as a <strong>named experiment run</strong> in Langfuse, and scores faithfulness synchronously.</div>
+          <div class="s-code-label">item.observe()</div>
+          <div class="s-code-text">This context manager creates a trace linked to the dataset item and the run name. All child spans hang off it. The Langfuse UI shows runs side by side under the dataset.</div>
+          <div class="s-code-label">Two scores per item</div>
+          <div class="s-code-text">The script scores synchronously for immediate feedback. Langfuse's managed evaluator also scores asynchronously using the full retrieval span context.</div>
+        </div>
+        <div class="s-code-right"><pre class="s-pre">dataset = lf.<span class="cm">get_dataset</span>(<span class="cs">"sherlock-eval"</span>)
+
+<span class="ck">for</span> item <span class="ck">in</span> dataset.items:
+    question = item.input[<span class="cs">"question"</span>]
+
+    <span class="cc"># observe() links trace to dataset item + run</span>
+    <span class="ck">with</span> item.<span class="cm">observe</span>(run_name=run_name) <span class="ck">as</span> trace:
+        trace.<span class="cm">update</span>(tags=[settings.llm_model, <span class="cs">"experiment"</span>])
+
+        answer_parts = []
+        <span class="ck">async for</span> token <span class="ck">in</span> <span class="cm">stream_answer</span>(question, repo, trace, settings):
+            answer_parts.<span class="cm">append</span>(token)
+
+        answer = <span class="cs">""</span>.<span class="cm">join</span>(answer_parts)
+        trace.<span class="cm">update</span>(output={<span class="cs">"answer"</span>: answer})
+
+    <span class="cc"># synchronous faithfulness judge</span>
+    faith = <span class="ck">await</span> <span class="cm">judge_faithfulness</span>(question, context, answer, model)
+    lf.<span class="cm">score</span>(trace_id=trace.id, name=<span class="cs">"faithfulness"</span>, value=faith)
+    scores.<span class="cm">append</span>(faith)
+    <span class="cm">print</span>(<span class="cs">f"  {'✓' if faith else '✗'} {question[:65]}"</span>)</pre></div>
+      </div>
+    </div></div>
+
+    <!-- 12. CODE: MODEL SWAP EXPERIMENT -->
+    <div class="slide-canvas"><div class="s-code">
+      <div class="s-code-header">
+        <span class="s-code-eyebrow">Model comparison</span>
+        <span class="s-code-sep">·</span>
+        <span class="s-code-title">Change one variable, run twice, compare in Langfuse</span>
+        <span class="s-code-file">Taskfile.yaml · UI → Experiments</span>
+      </div>
+      <div class="s-code-body">
+        <div class="s-code-left">
+          <div class="s-code-label">The principle</div>
+          <div class="s-code-text">A valid experiment changes exactly one variable — the model — against a fixed dataset with a fixed score. Everything else stays constant.</div>
+          <div class="s-code-label">In Langfuse UI</div>
+          <div class="s-code-text">Datasets → sherlock-eval → Experiments tab. Both runs appear side by side. Click any item to see the per-question score delta: did the cheaper model hold up?</div>
+          <div class="s-code-label">What to look for</div>
+          <div class="s-code-text">If <code style="font-family:monospace;font-size:10px;">gpt-4o-mini</code> is within 5% faithfulness of <code style="font-family:monospace;font-size:10px;">gpt-4o</code>, the cost saving is worth it. If it drops 20%+, it isn't.</div>
+        </div>
+        <div class="s-code-right"><pre class="s-pre"><span class="cc"># Run gpt-4o baseline</span>
+LLM_MODEL=gpt-4o \
+  task experiment:run \
+  -- --run-name <span class="cs">gpt-4o-baseline</span>
+
+<span class="cc"># Run gpt-4o-mini — same dataset, one variable changed</span>
+LLM_MODEL=gpt-4o-mini \
+  task experiment:run \
+  -- --run-name <span class="cs">gpt-4o-mini-baseline</span>
+
+
+<span class="cc"># ── What run_experiment.py does with LLM_MODEL ──</span>
+<span class="cc"># config.py reads LLM_MODEL from env →</span>
+<span class="cc"># settings.llm_model flows to stream_answer() →</span>
+<span class="cc"># trace is tagged with the model name →</span>
+<span class="cc"># both runs land in Langfuse Experiments,</span>
+<span class="cc"># item by item, score by score, side by side</span>
+
+
+<span class="cc"># The UI shows per-item score deltas:</span>
+<span class="cc"># "Was Holmes ever married?" faithfulness:  gpt-4o 1.0 / mini 0.0</span>
+<span class="cc"># "Where does Holmes live?"  faithfulness:  gpt-4o 1.0 / mini 1.0</span></pre></div>
+      </div>
+    </div></div>
+
+    <!-- 13. CODE: REGRESSION GATE -->
+    <div class="slide-canvas"><div class="s-code">
+      <div class="s-code-header">
+        <span class="s-code-eyebrow">task regression:test</span>
+        <span class="s-code-sep">·</span>
+        <span class="s-code-title">Quality gate — exits non-zero if faithfulness &lt; 0.70</span>
+        <span class="s-code-file">scripts/run_experiment.py --threshold 0.70</span>
+      </div>
+      <div class="s-code-body">
+        <div class="s-code-left">
+          <div class="s-code-label">Same script, one flag</div>
+          <div class="s-code-text"><code style="font-family:monospace;font-size:10px;">task regression:test</code> calls <code style="font-family:monospace;font-size:10px;">run_experiment.py --threshold 0.70</code>. All the same scoring logic; if average faithfulness falls below the threshold, the process exits 1 — blocking CI.</div>
+          <div class="s-code-label">Wire to GitHub Actions</div>
+          <div class="s-code-text">Add <code style="font-family:monospace;font-size:10px;">task regression:test</code> as a step in your CI workflow on the main branch. A prompt change that tanks faithfulness gets caught before it ships.</div>
+          <div class="s-code-label">Take-home</div>
+          <div class="s-code-text">RAGAS full suite (context recall, precision, answer relevancy) is available as Langfuse managed evaluators. Monitors (UI → Monitors) can alert on Slack when faithfulness drops in production.</div>
+        </div>
+        <div class="s-code-right"><pre class="s-pre"><span class="cc"># Taskfile.yaml</span>
+<span class="cs">"regression:test"</span>:
+  desc: Run experiment, exit non-zero <span class="ck">if</span> avg faithfulness &lt; <span class="cn">0.70</span>
+  cmds:
+    - uv run python scripts/run_experiment.py --threshold <span class="cn">0.70</span>
+
+
+<span class="cc"># scripts/run_experiment.py (end of run())</span>
+avg = <span class="cm">sum</span>(scores) / <span class="cm">len</span>(scores)
+<span class="cm">print</span>(<span class="cs">f"Avg faithfulness: {avg:.2%} (threshold: {threshold:.2%})"</span>)
+
+<span class="ck">if</span> threshold <span class="ck">is not None and</span> avg &lt; threshold:
+    <span class="cm">print</span>(<span class="cs">f"FAIL — {avg:.2f} below {threshold:.2f}"</span>)
+    sys.<span class="cm">exit</span>(<span class="cn">1</span>)  <span class="ch">← CI sees non-zero → blocks merge</span>
+
+
+<span class="cc"># GitHub Actions example</span>
+<span class="cc"># - name: Regression gate</span>
+<span class="cc">#   run: task regression:test</span>
+<span class="cc">#   env:</span>
+<span class="cc">#     LANGFUSE_PUBLIC_KEY: ${{ secrets.LANGFUSE_PUBLIC_KEY }}</span>
+<span class="cc">#     LANGFUSE_SECRET_KEY: ${{ secrets.LANGFUSE_SECRET_KEY }}</span>
+<span class="cc">#     OPENAI_API_KEY:       ${{ secrets.OPENAI_API_KEY }}</span></pre></div>
+      </div>
+    </div></div>
+
+    <!-- 15. LAB B -->
+    <div class="slide-canvas"><div class="s-statement">
+      <div class="s-stmt-eyebrow"><div class="s-stmt-eyebrow-sq"></div><span class="s-stmt-eyebrow-text">Lab B · ~15 minutes</span></div>
+      <div class="s-stmt-h1">Run the loop.</div>
+      <div class="s-stmt-sub">
+        <ul>
+          <li>UI → Evaluators → set up a RAGAS Faithfulness evaluator on your traces. Ask one question — verify the score appears.</li>
+          <li>Run <span class="mono">task experiment:run</span> — watch the experiment run appear in Langfuse Datasets → sherlock-eval → Experiments.</li>
+          <li>Change <span class="mono">LLM_MODEL=gpt-4o-mini</span> in <span class="mono">.env</span>, run again with a different <span class="mono">--run-name</span>. Compare faithfulness side by side.</li>
+          <li>Run <span class="mono">task regression:test</span> — see it pass or fail against the 0.70 threshold.</li>
+        </ul>
+      </div>
+    </div></div>
+
+    <!-- 16. BONUS: RETRIEVAL IMPROVEMENT IDEAS -->
+    <div class="slide-canvas"><div class="s-rows-slide">
+      <div class="s-eyebrow"><div class="s-eyebrow-sq"></div><span class="s-eyebrow-text">Additional ideas — now you have the evaluation loop to measure them</span></div>
+      <div class="s-h1">Three ways to improve retrieval quality</div>
+      <div class="s-rows">
+        <div class="s-row">
+          <span class="s-row-label"><span class="s-row-accent">HyDE</span> — embed a fake answer</span>
+          <span class="s-row-sub">Ask the LLM to write a short hypothetical answer first, then embed that instead of the raw question. A fake answer uses the vocabulary of the source text and lands much closer to the real passage in embedding space.</span>
+        </div>
+        <div class="s-row">
+          <span class="s-row-label"><span class="s-row-accent">Query rewriting</span> — match the corpus</span>
+          <span class="s-row-sub">Ask the LLM to rephrase the question as keywords or a declarative statement that matches the language of the source text. Cheaper than HyDE — good first A/B candidate.</span>
+        </div>
+        <div class="s-row">
+          <span class="s-row-label"><span class="s-row-accent">Multi-query retrieval</span> — cast a wider net</span>
+          <span class="s-row-sub">Generate 2–3 alternative phrasings, run each through the vector search, deduplicate and merge the results. Multiple retrieval spans visible in Langfuse per turn.</span>
+        </div>
+      </div>
+      <div class="s-callout">Your dataset + regression gate is already in place — run any of these ideas through <code style="font-size:11px;background:rgba(126,28,66,0.15);padding:1px 5px;">task regression:test</code> to measure whether they actually help.</div>
+    </div></div>
+
+  </div>
+
+  <div class="controls">
+    <button class="ctrl-btn" id="btn-prev" aria-label="Previous">&#8592;</button>
+    <span class="ctrl-counter" id="counter">1 / 16</span>
+    <button class="ctrl-btn" id="btn-next" aria-label="Next">&#8594;</button>
+  </div>
+</div>
+
+<script>
+  var slides  = Array.from(document.querySelectorAll('.slide-canvas'));
+  var total   = slides.length;
+  var current = 0;
+  var stage   = document.getElementById('stage');
+  var counter = document.getElementById('counter');
+  var btnPrev = document.getElementById('btn-prev');
+  var btnNext = document.getElementById('btn-next');
+  function show(n) {
+    slides[current].classList.remove('active');
+    current = Math.max(0, Math.min(total - 1, n));
+    slides[current].classList.add('active');
+    counter.textContent = (current + 1) + ' / ' + total;
+    btnPrev.disabled = current === 0;
+    btnNext.disabled = current === total - 1;
+  }
+  function scale() {
+    var vw = window.innerWidth, vh = window.innerHeight - 60;
+    var s = Math.min(vw / 800, vh / 450);
+    stage.style.width  = Math.round(800 * s) + 'px';
+    stage.style.height = Math.round(450 * s) + 'px';
+    slides.forEach(function(el) { el.style.transform = 'scale(' + s + ')'; });
+  }
+  btnPrev.addEventListener('click', function() { show(current - 1); });
+  btnNext.addEventListener('click', function() { show(current + 1); });
+  document.addEventListener('keydown', function(e) {
+    if (e.key === 'ArrowRight' || e.key === 'ArrowDown' || e.key === ' ') { e.preventDefault(); show(current + 1); }
+    if (e.key === 'ArrowLeft'  || e.key === 'ArrowUp')                    { e.preventDefault(); show(current - 1); }
+  });
+  window.addEventListener('resize', scale);
+  scale();
+  show(0);
+</script>
