@@ -169,6 +169,37 @@ html, body {
 }
 .s-div-meta strong { color: rgba(244,241,236,0.45); font-weight: 600; }
 
+/* ── CONTENT SLIDE ── */
+.s-content { background: var(--parchment); display: flex; flex-direction: column; padding: 0; }
+.s-content-header {
+  background: var(--berry); height: 48px; flex-shrink: 0;
+  padding: 0 28px; display: flex; align-items: center; gap: 14px;
+}
+.s-content-cat {
+  font-family: system-ui, sans-serif; font-weight: 700;
+  font-size: 8px; letter-spacing: 0.16em; text-transform: uppercase; color: var(--gold);
+}
+.s-content-sep { color: rgba(244,241,236,0.3); font-size: 14px; }
+.s-content-name { font-size: 20px; font-weight: bold; color: white; }
+.s-content-body { flex: 1; padding: 14px 28px 0; display: flex; flex-direction: column; gap: 7px; overflow: hidden; }
+.s-row {
+  background: white; border: 1px solid var(--rule);
+  padding: 10px 18px; display: flex; align-items: baseline; gap: 14px;
+}
+.s-row-label { font-size: 13px; color: var(--ink); line-height: 1.35; }
+.s-row-label strong { color: var(--ink); }
+.s-row-label em { color: var(--berry); font-style: normal; font-weight: bold; }
+.s-row-label code {
+  font-family: 'SF Mono','Menlo',monospace; font-size: 11px;
+  background: var(--night); color: var(--gold); padding: 1px 5px;
+}
+.s-row-sub { font-style: italic; font-size: 11px; color: rgba(29,20,34,0.42); margin-left: auto; white-space: nowrap; }
+.s-content-callout {
+  margin-top: auto; padding: 10px 28px 14px;
+  font-size: 15px; font-weight: bold; font-style: italic; color: var(--berry);
+  border-top: 1px solid var(--rule);
+}
+
 /* ── BREAK ── */
 .s-break {
   background: var(--night);
@@ -249,6 +280,22 @@ html, body {
       <div class="s-div-bottom"><div class="s-div-meta"><strong>Format</strong> &nbsp;Intro · logistics · day overview</div></div>
     </div></div>
 
+    <div class="slide-canvas"><div class="s-content">
+      <div class="s-content-header">
+        <span class="s-content-cat">09:30 · 15 min</span>
+        <span class="s-content-sep">·</span>
+        <span class="s-content-name">Setting the stage</span>
+      </div>
+      <div class="s-content-body">
+        <div class="s-row"><span class="s-row-label">~30,000 traces · ~500 scores · <em>zero categorical</em> — we close this gap today</span></div>
+        <div class="s-row"><span class="s-row-label"><strong>Format:</strong> one shared demo repo, extended throughout the day — not build-from-scratch</span></div>
+        <div class="s-row"><span class="s-row-label"><strong>Instrument</strong> with Langfuse · <strong>evaluate</strong> with datasets + scores · <strong>experiment</strong> with model swaps</span></div>
+        <div class="s-row"><span class="s-row-label">Two products anchoring every example: <em>Cosmo</em> · <em>AI Chat</em></span></div>
+        <div class="s-row"><span class="s-row-label"><strong>Pre-work check:</strong> Langfuse project created? OpenAI key ready? Repo cloned?</span><span class="s-row-sub">raise your hand if not</span></div>
+      </div>
+      <div class="s-content-callout">By 16:00: a working eval loop you can wire into your own product next week.</div>
+    </div></div>
+
     <!-- 4 · AI-Assisted Coding -->
     <div class="slide-canvas"><div class="s-div">
       <div class="s-div-top">
@@ -275,6 +322,22 @@ html, body {
       <div class="s-div-bottom"><div class="s-div-meta"><strong>Format</strong> &nbsp;Facilitated discussion · each team writes 2–3 quality criteria</div></div>
     </div></div>
 
+    <div class="slide-canvas"><div class="s-content">
+      <div class="s-content-header">
+        <span class="s-content-cat">10:45 · 30 min · Exercise</span>
+        <span class="s-content-sep">·</span>
+        <span class="s-content-name">Write your quality criteria</span>
+      </div>
+      <div class="s-content-body">
+        <div class="s-row"><span class="s-row-label"><em>Per-response:</em> what would "wrong" look like to a user? What makes a 9/10 answer?</span></div>
+        <div class="s-row"><span class="s-row-label"><em>Conversation-level:</em> turns to resolution · TTFT · token cost per session</span></div>
+        <div class="s-row"><span class="s-row-label"><em>System-level:</em> faithfulness · classifier routing · retrieval precision</span></div>
+        <div class="s-row"><span class="s-row-label"><strong>Cosmo:</strong> grade-appropriate language · factual grounding · safe at age 12 — what does "wrong" look like?</span></div>
+        <div class="s-row"><span class="s-row-label"><strong>AI Chat:</strong> did retrieval pull the right page? Did the answer stay faithful to the source?</span></div>
+      </div>
+      <div class="s-content-callout">Each team: write 2–3 concrete criteria for one feature. We instrument these by end of day.</div>
+    </div></div>
+
     <!-- 7 · Langfuse Feature Tour -->
     <div class="slide-canvas"><div class="s-div">
       <div class="s-div-top">
@@ -291,6 +354,22 @@ html, body {
         <div class="s-div-title" style="font-size:56px;">Demo Setup</div>
       </div>
       <div class="s-div-bottom"><div class="s-div-meta"><strong>Format</strong> &nbsp;Run <code style="font-family:monospace;font-size:10px;">task run</code> · verify Langfuse connectivity before lunch</div></div>
+    </div></div>
+
+    <div class="slide-canvas"><div class="s-content">
+      <div class="s-content-header">
+        <span class="s-content-cat">12:00 · 15 min · Hands-on</span>
+        <span class="s-content-sep">·</span>
+        <span class="s-content-name">Get the demo running</span>
+      </div>
+      <div class="s-content-body">
+        <div class="s-row"><span class="s-row-label"><code>git checkout v1-baseline-tracing</code></span><span class="s-row-sub">branch: v1-baseline-tracing</span></div>
+        <div class="s-row"><span class="s-row-label"><code>cp .env.example .env</code> — fill in <code>OPENAI_API_KEY</code> + Langfuse keys</span></div>
+        <div class="s-row"><span class="s-row-label"><code>task run</code> → <code>task migrate</code> → download data → <code>task ingest</code></span><span class="s-row-sub">~2 min</span></div>
+        <div class="s-row"><span class="s-row-label">Open <em>http://localhost:7932</em> — ask one question</span></div>
+        <div class="s-row"><span class="s-row-label">Open <em>Langfuse → Tracing</em> — you should see a trace within seconds</span><span class="s-row-sub">verify before lunch</span></div>
+      </div>
+      <div class="s-content-callout">A failing API key now = wasted afternoon. Raise your hand — facilitator walks the room.</div>
     </div></div>
 
     <!-- 9 · LUNCH -->
@@ -337,11 +416,27 @@ html, body {
       <div class="s-div-bottom"><div class="s-div-meta"><strong>Format</strong> &nbsp;Open discussion · blockers · Monday morning action items</div></div>
     </div></div>
 
+    <div class="slide-canvas"><div class="s-content">
+      <div class="s-content-header">
+        <span class="s-content-cat">16:00 · 30 min · Discussion</span>
+        <span class="s-content-sep">·</span>
+        <span class="s-content-name">What did you take away?</span>
+      </div>
+      <div class="s-content-body">
+        <div class="s-row"><span class="s-row-label">The loop: <em>trace</em> → <em>dataset</em> → <em>score</em> → <em>experiment</em> → ship with a regression gate</span></div>
+        <div class="s-row"><span class="s-row-label"><strong>Cosmo:</strong> what's the first eval you'll add this week? What's your blocker?</span></div>
+        <div class="s-row"><span class="s-row-label"><strong>AI Chat:</strong> did retrieval pull the right page? Did the answer stay faithful to the source?</span></div>
+        <div class="s-row"><span class="s-row-label">Multi-step systems: per-step scores vs. end-to-end score — which matters for your rollout decision?</span></div>
+        <div class="s-row"><span class="s-row-label"><strong>Monday morning:</strong> one metric per product, wired up this week</span><span class="s-row-sub">office hours available</span></div>
+      </div>
+      <div class="s-content-callout">Demo repo + Langfuse project stay accessible. 30-min follow-up office hours to review your eval setup.</div>
+    </div></div>
+
   </div><!-- /stage -->
 
   <div class="controls">
     <button class="ctrl-btn" id="btn-prev" aria-label="Previous">&#8592;</button>
-    <span class="ctrl-counter" id="counter">1 / 13</span>
+    <span class="ctrl-counter" id="counter">1 / 17</span>
     <button class="ctrl-btn" id="btn-next" aria-label="Next">&#8594;</button>
   </div>
 </div>
