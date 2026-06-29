@@ -51,6 +51,13 @@ async def chat(req: ChatRequest) -> StreamingResponse:
     settings = get_settings()
     trace = tracing.start_trace(req.question, req.session_id, settings.llm_model)
 
+    # Mirror what item.observe() does in the experiment runner:
+    # set the Langfuse ContextVar so litellm's callback registers the generation
+    # in a way the UI evaluator can pick up — not just via existing_trace_id metadata.
+    if trace:
+        from langfuse.decorators import langfuse_context
+        langfuse_context._set_root_trace_id(trace.id)
+
     async def events() -> AsyncIterator[str]:
         if trace:
             yield f"data: {json.dumps({'trace_id': trace.id})}\n\n"
