@@ -236,7 +236,7 @@ html, body {
         </div>
         <div class="s-cover-footer">
           <div class="s-cover-client">Cornelsen Engineering</div>
-          <div class="s-cover-date">Spielfeld Digital Hub · Berlin · 09:30 – 16:30</div>
+          <div class="s-cover-date">Contiamo · Leipziger Straße 126, Berlin · 09:30 – 16:30</div>
         </div>
       </div>
       <div class="s-cover-right">
@@ -246,7 +246,7 @@ html, body {
 
     <!-- 2 · AGENDA -->
     <div class="slide-canvas"><div class="s-agenda">
-      <div class="s-eyebrow"><div class="s-eyebrow-sq"></div><span class="s-eyebrow-text">30 June 2026 · Spielfeld Digital Hub, Berlin</span></div>
+      <div class="s-eyebrow"><div class="s-eyebrow-sq"></div><span class="s-eyebrow-text">30 June 2026 · Contiamo · Leipziger Straße 126, Berlin</span></div>
       <div class="s-h1">Day at a glance</div>
       <div class="agenda-cols">
         <div>
@@ -284,16 +284,16 @@ html, body {
       <div class="s-content-header">
         <span class="s-content-cat">09:30 · 15 min</span>
         <span class="s-content-sep">·</span>
-        <span class="s-content-name">Setting the stage</span>
+        <span class="s-content-name">Welcome — quick round of introductions</span>
       </div>
       <div class="s-content-body">
-        <div class="s-row"><span class="s-row-label">We work in the <em>shared demo project</em> — a few traces today, but the patterns scale to any volume</span></div>
-        <div class="s-row"><span class="s-row-label"><strong>Format:</strong> one shared demo repo, extended throughout the day — not build-from-scratch</span></div>
-        <div class="s-row"><span class="s-row-label"><strong>Instrument</strong> with Langfuse · <strong>evaluate</strong> with datasets + scores · <strong>experiment</strong> with model swaps</span></div>
-        <div class="s-row"><span class="s-row-label">Two products anchoring every example: <em>Cosmo</em> · <em>AI Chat</em></span></div>
-        <div class="s-row"><span class="s-row-label"><strong>Pre-work check:</strong> Langfuse project created? OpenAI key ready? Repo cloned?</span><span class="s-row-sub">raise your hand if not</span></div>
+        <div class="s-row"><span class="s-row-label"><strong>What you can expect:</strong> hands-on tracing, evaluation, and experiments — all on a shared demo app we extend together</span></div>
+        <div class="s-row"><span class="s-row-label"><strong>Agenda:</strong> Langfuse tour → demo setup → tracing v1 → v2 → evaluation datasets → scoring & experiments</span></div>
+        <div class="s-row"><span class="s-row-label"><strong>The demo:</strong> a RAG app over Sherlock Holmes — simple enough to see every moving part, real enough to instrument properly</span></div>
+        <div class="s-row"><span class="s-row-label"><strong>Format:</strong> concept slides → hands-on labs alternating — you'll leave with code you wrote yourself</span></div>
+        <div class="s-row"><span class="s-row-label"><strong>Quick round:</strong> who are you, what AI product are you working on, what's one thing you want to take away?</span></div>
       </div>
-      <div class="s-content-callout">By 16:00: a working eval loop you can wire into your own product next week.</div>
+      <div class="s-content-callout">No prior Langfuse experience needed. Bring curiosity and your product context.</div>
     </div></div>
 
     <!-- 4 · AI-Assisted Coding -->
@@ -324,18 +324,18 @@ html, body {
 
     <div class="slide-canvas"><div class="s-content">
       <div class="s-content-header">
-        <span class="s-content-cat">10:45 · 30 min · Exercise</span>
+        <span class="s-content-cat">10:45 · 30 min · Discussion</span>
         <span class="s-content-sep">·</span>
-        <span class="s-content-name">Write your quality criteria</span>
+        <span class="s-content-name">How do we know the AI is getting better?</span>
       </div>
       <div class="s-content-body">
-        <div class="s-row"><span class="s-row-label"><em>Per-response:</em> what would "wrong" look like to a user? What makes a 9/10 answer?</span></div>
-        <div class="s-row"><span class="s-row-label"><em>Conversation-level:</em> turns to resolution · TTFT · token cost per session</span></div>
-        <div class="s-row"><span class="s-row-label"><em>System-level:</em> faithfulness · classifier routing · retrieval precision</span></div>
-        <div class="s-row"><span class="s-row-label"><strong>Cosmo:</strong> grade-appropriate language · factual grounding · safe at age 12 — what does "wrong" look like?</span></div>
-        <div class="s-row"><span class="s-row-label"><strong>AI Chat:</strong> did retrieval pull the right page? Did the answer stay faithful to the source?</span></div>
+        <div class="s-row"><span class="s-row-label"><strong>The core question:</strong> what would need to be measurably true for you to say "we improved the AI this sprint"?</span></div>
+        <div class="s-row"><span class="s-row-label"><em>Signal, not feeling</em> — a metric you can track over time: faithfulness score, error rate, TTFT, turns to resolution</span></div>
+        <div class="s-row"><span class="s-row-label"><em>Catching regressions</em> — how do you know a prompt change didn't silently make things worse?</span></div>
+        <div class="s-row"><span class="s-row-label"><em>Comparing variants</em> — model A vs. model B, prompt v1 vs. v2: what's your decision criterion?</span></div>
+        <div class="s-row"><span class="s-row-label"><strong>Exercise:</strong> each team names 1–2 quality signals for their product. What would you put on a dashboard?</span></div>
       </div>
-      <div class="s-content-callout">Each team: write 2–3 concrete criteria for one feature. We instrument these by end of day.</div>
+      <div class="s-content-callout">These signals become your dataset rubric and your experiment gate later today.</div>
     </div></div>
 
     <!-- 7 · Langfuse Feature Tour -->
@@ -363,13 +363,12 @@ html, body {
         <span class="s-content-name">Get the demo running</span>
       </div>
       <div class="s-content-body">
-        <div class="s-row"><span class="s-row-label"><code>git checkout v1-baseline-tracing</code></span><span class="s-row-sub">branch: v1-baseline-tracing</span></div>
-        <div class="s-row"><span class="s-row-label"><code>cp .env.example .env</code> — fill in <code>OPENAI_API_KEY</code> + Langfuse keys</span></div>
-        <div class="s-row"><span class="s-row-label"><code>task run</code> → <code>task migrate</code> → download data → <code>task ingest</code></span><span class="s-row-sub">~2 min</span></div>
-        <div class="s-row"><span class="s-row-label">Open <em>http://localhost:7932</em> — ask one question</span></div>
-        <div class="s-row"><span class="s-row-label">Open <em>Langfuse → Tracing</em> — you should see a trace within seconds</span><span class="s-row-sub">verify before lunch</span></div>
+        <div class="s-row"><span class="s-row-label"><strong>Repo:</strong> <em>github.com/contiamo/langfuse-demo</em> → branch <code>v1-baseline-tracing</code></span><span class="s-row-sub">VPN required</span></div>
+        <div class="s-row"><span class="s-row-label"><strong>API key:</strong> OpenAI key — bring your own</span><span class="s-row-sub">via VPN if needed</span></div>
+        <div class="s-row"><span class="s-row-label"><strong>Langfuse credentials:</strong> public key + secret key — provided by us today</span></div>
+        <div class="s-row"><span class="s-row-label"><code>cp .env.example .env</code> — fill in keys, then <code>task run</code> → <code>task migrate</code> → <code>task ingest</code></span><span class="s-row-sub">~2 min</span></div>
+        <div class="s-row"><span class="s-row-label">Open <em>http://localhost:7932</em> — ask a question, then check <em>Langfuse → Tracing</em></span><span class="s-row-sub">verify before lunch</span></div>
       </div>
-      <div class="s-content-callout">A failing API key now = wasted afternoon. Raise your hand — facilitator walks the room.</div>
     </div></div>
 
     <!-- 9 · LUNCH -->
@@ -413,7 +412,7 @@ html, body {
         <div class="s-div-eyebrow">16:00 · 30 minutes</div>
         <div class="s-div-title" style="font-size:46px;">Wrap-up: What Did<br>You Take Away?</div>
       </div>
-      <div class="s-div-bottom"><div class="s-div-meta"><strong>Format</strong> &nbsp;Open discussion · blockers · Monday morning action items</div></div>
+      <div class="s-div-bottom"><div class="s-div-meta"><strong>Format</strong> &nbsp;Open discussion · reflections · what would you do differently</div></div>
     </div></div>
 
     <div class="slide-canvas"><div class="s-content">
@@ -427,9 +426,9 @@ html, body {
         <div class="s-row"><span class="s-row-label"><strong>Cosmo:</strong> what's the first eval you'll add this week? What's your blocker?</span></div>
         <div class="s-row"><span class="s-row-label"><strong>AI Chat:</strong> did retrieval pull the right page? Did the answer stay faithful to the source?</span></div>
         <div class="s-row"><span class="s-row-label">Multi-step systems: per-step scores vs. end-to-end score — which matters for your rollout decision?</span></div>
-        <div class="s-row"><span class="s-row-label"><strong>Monday morning:</strong> one metric per product, wired up this week</span><span class="s-row-sub">office hours available</span></div>
+        <div class="s-row"><span class="s-row-label"><strong>Open floor:</strong> what's the first eval you'd add to your product? What's the biggest obstacle?</span></div>
       </div>
-      <div class="s-content-callout">Demo repo + Langfuse project stay accessible. 30-min follow-up office hours to review your eval setup.</div>
+      <div class="s-content-callout">The demo repo stays public — take the patterns, adapt them to your stack.</div>
     </div></div>
 
   </div><!-- /stage -->
