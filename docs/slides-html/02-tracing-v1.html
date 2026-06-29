@@ -1,0 +1,349 @@
+<meta charset="utf-8">
+<title>02 · Tracing v1: What Basic Tracing Looks Like — Gen AI Engineering · Cornelsen</title>
+<meta name="description" content="15-minute concept session: how v1 instruments Langfuse, what it produces, and why it's not enough.">
+<style>
+:root {
+  --night:     #1A1321;
+  --berry:     #7E1C42;
+  --gold:      #C8924C;
+  --parchment: #EDE8DF;
+  --ink:       #1D1422;
+  --chalk:     #F4F1EC;
+  --rule:      #D4CCBC;
+  --muted:     #8A7E72;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+html, body { width: 100%; height: 100%; background: #0D0A10; overflow: hidden; font-family: Georgia, 'Times New Roman', serif; }
+
+.deck { width: 100vw; height: 100vh; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 12px; }
+.stage-wrap { position: relative; }
+.slide-canvas { position: absolute; top: 0; left: 0; width: 800px; height: 450px; transform-origin: top left; overflow: hidden; display: none; }
+.slide-canvas.active { display: block; }
+
+.controls { display: flex; align-items: center; gap: 12px; flex-shrink: 0; }
+.ctrl-btn { background: none; border: 1px solid rgba(244,241,236,0.18); color: rgba(244,241,236,0.55); width: 32px; height: 32px; cursor: pointer; font-size: 14px; display: flex; align-items: center; justify-content: center; }
+.ctrl-btn:hover:not(:disabled) { background: rgba(244,241,236,0.08); }
+.ctrl-btn:disabled { opacity: 0.2; cursor: default; }
+.ctrl-counter { font-family: 'SF Mono','Menlo',monospace; font-size: 11px; color: rgba(244,241,236,0.3); min-width: 52px; text-align: center; font-variant-numeric: tabular-nums; user-select: none; }
+
+/* ── SECTION DIVIDER ── */
+.s-div { width: 800px; height: 450px; display: grid; grid-template-rows: 290px 160px; }
+.s-div-top { background: var(--berry); padding: 0 60px; display: flex; flex-direction: column; justify-content: center; }
+.s-div-eyebrow { font-family: system-ui,sans-serif; font-weight: 600; font-size: 9px; letter-spacing: 0.14em; text-transform: uppercase; color: rgba(200,146,76,0.85); margin-bottom: 14px; }
+.s-div-title { font-weight: bold; color: white; line-height: 1.06; }
+.s-div-bottom { background: var(--night); padding: 0 60px; display: flex; align-items: center; }
+.s-div-meta { font-family: system-ui,sans-serif; font-size: 10px; letter-spacing: 0.06em; text-transform: uppercase; color: rgba(244,241,236,0.28); }
+.s-div-meta strong { color: rgba(244,241,236,0.45); font-weight: 600; }
+
+/* ── CODE SLIDE ── */
+.s-code { width: 800px; height: 450px; display: flex; flex-direction: column; }
+.s-code-header { background: var(--night); height: 50px; flex-shrink: 0; padding: 0 28px; display: flex; align-items: center; gap: 14px; }
+.s-code-num { font-family: system-ui,sans-serif; font-size: 8px; font-weight: 700; letter-spacing: 0.16em; text-transform: uppercase; color: var(--gold); }
+.s-code-sep { color: rgba(244,241,236,0.2); font-size: 14px; }
+.s-code-title { font-size: 19px; font-weight: bold; color: var(--chalk); line-height: 1; }
+.s-code-file { font-family: 'SF Mono','Menlo',monospace; font-size: 9px; color: rgba(200,146,76,0.6); margin-left: auto; }
+.s-code-body { flex: 1; display: grid; grid-template-columns: 272px 528px; }
+.s-code-left { background: var(--parchment); padding: 14px 16px 14px 22px; display: flex; flex-direction: column; gap: 6px; border-right: 1px solid rgba(212,204,188,0.4); }
+.s-code-label { font-family: system-ui,sans-serif; font-size: 7.5px; font-weight: 700; letter-spacing: 0.14em; text-transform: uppercase; color: var(--berry); margin-top: 8px; }
+.s-code-label:first-child { margin-top: 0; }
+.s-code-text { font-size: 10.5px; color: var(--ink); line-height: 1.52; }
+.s-code-right { background: #13101C; padding: 14px 18px; overflow: hidden; }
+pre.s-pre { font-family: 'SF Mono','Menlo','Consolas',monospace; font-size: 10.5px; line-height: 1.65; color: #A8BECE; white-space: pre; margin: 0; }
+.ck { color: #9B7EA8; }
+.cf { color: var(--gold); }
+.cm { color: #6AAFB0; }
+.cs { color: #78A870; }
+.cc { color: #3A5468; }
+.cn { color: #C8814C; }
+.ch { color: rgba(200,146,76,0.55); font-style: italic; }
+
+/* ── DIAGRAM: what Langfuse shows ── */
+.s-diagram { width: 800px; height: 450px; display: flex; flex-direction: column; background: var(--parchment); }
+.s-diag-header { background: var(--night); height: 50px; flex-shrink: 0; padding: 0 28px; display: flex; align-items: center; gap: 14px; }
+.s-diag-title { font-size: 19px; font-weight: bold; color: var(--chalk); }
+.s-diag-sub { font-family: system-ui,sans-serif; font-size: 9px; color: rgba(200,146,76,0.7); letter-spacing: 0.1em; text-transform: uppercase; margin-left: auto; }
+.s-diag-body { flex: 1; display: grid; grid-template-columns: 1fr 1fr; gap: 0; }
+.s-diag-col { padding: 16px 20px; display: flex; flex-direction: column; gap: 8px; }
+.s-diag-col:first-child { border-right: 1px solid var(--rule); }
+.s-diag-col-label { font-family: system-ui,sans-serif; font-size: 8px; font-weight: 700; letter-spacing: 0.13em; text-transform: uppercase; color: var(--muted); padding-bottom: 8px; border-bottom: 1px solid var(--rule); margin-bottom: 2px; }
+
+/* Trace row as it appears in Langfuse UI */
+.trace-row { background: white; border: 1px solid var(--rule); padding: 7px 10px; display: flex; flex-direction: column; gap: 3px; }
+.trace-row.dimmed { opacity: 0.45; }
+.trace-name { font-family: 'SF Mono','Menlo',monospace; font-size: 10px; font-weight: bold; color: var(--ink); }
+.trace-name.auto { color: var(--muted); }
+.trace-meta { font-family: system-ui,sans-serif; font-size: 9px; color: var(--muted); display: flex; gap: 10px; }
+.trace-pill { font-family: system-ui,sans-serif; font-size: 8px; background: rgba(126,28,66,0.1); color: var(--berry); padding: 1px 6px; border: 1px solid rgba(126,28,66,0.2); }
+.trace-pill.auto { background: rgba(58,88,114,0.1); color: #3A5872; border-color: rgba(58,88,114,0.2); }
+.trace-unlinked { display: flex; align-items: center; gap: 6px; padding: 4px 0; }
+.trace-unlinked-line { flex: 1; border-top: 1px dashed rgba(29,20,34,0.2); }
+.trace-unlinked-label { font-family: system-ui,sans-serif; font-size: 8px; color: rgba(29,20,34,0.3); font-style: italic; white-space: nowrap; }
+
+/* Annotation boxes on the right */
+.s-diag-annotations { display: flex; flex-direction: column; gap: 10px; }
+.s-ann { display: flex; gap: 10px; align-items: flex-start; }
+.s-ann-marker { width: 3px; background: var(--berry); flex-shrink: 0; align-self: stretch; }
+.s-ann-text { font-size: 10.5px; color: var(--ink); line-height: 1.5; }
+.s-ann-text strong { color: var(--berry); }
+
+/* ── CONTENT — ROWS (gaps) ── */
+.s-content { width: 800px; height: 450px; background: var(--parchment); padding: 28px 44px 22px; display: flex; flex-direction: column; }
+.s-eyebrow { display: flex; align-items: center; gap: 7px; margin-bottom: 10px; }
+.s-eyebrow-sq { width: 9px; height: 9px; background: var(--berry); flex-shrink: 0; }
+.s-eyebrow-text { font-family: system-ui,sans-serif; font-weight: 600; font-size: 9px; letter-spacing: 0.13em; text-transform: uppercase; color: var(--berry); }
+.s-h1 { font-size: 28px; font-weight: bold; color: var(--ink); line-height: 1.07; margin-bottom: 16px; }
+.s-rows { display: flex; flex-direction: column; gap: 7px; flex: 1; }
+.s-row { background: white; border: 1px solid var(--rule); padding: 10px 16px; display: flex; align-items: baseline; gap: 14px; }
+.s-row-icon { font-family: system-ui,sans-serif; font-size: 13px; flex-shrink: 0; }
+.s-row-label { font-size: 12px; font-weight: bold; color: var(--ink); flex-shrink: 0; min-width: 190px; }
+.s-row-accent { color: var(--berry); }
+.s-row-sub { font-style: italic; font-size: 11px; color: rgba(29,20,34,0.5); line-height: 1.4; }
+.s-callout { font-size: 13px; font-weight: bold; font-style: italic; color: var(--berry); margin-top: 14px; line-height: 1.4; }
+</style>
+
+<div class="deck">
+  <div class="stage-wrap" id="stage">
+
+    <!-- ━━ 1. SECTION DIVIDER ━━ -->
+    <div class="slide-canvas"><div class="s-div">
+      <div class="s-div-top">
+        <div class="s-div-eyebrow">13:15 · 15 minutes · Concept</div>
+        <div class="s-div-title" style="font-size:46px;">What Basic Tracing<br>Looks Like</div>
+      </div>
+      <div class="s-div-bottom"><div class="s-div-meta"><strong>Repo</strong> &nbsp;langfuse-demo · branch: v1-baseline-tracing</div></div>
+    </div></div>
+
+    <!-- ━━ 2. HOW V1 SETS UP LANGFUSE ━━ -->
+    <div class="slide-canvas"><div class="s-code">
+      <div class="s-code-header">
+        <span class="s-code-num">v1</span>
+        <span class="s-code-sep">·</span>
+        <span class="s-code-title">How v1 instruments Langfuse</span>
+        <span class="s-code-file">tracing.py</span>
+      </div>
+      <div class="s-code-body">
+        <div class="s-code-left">
+          <div class="s-code-label">Two-line setup</div>
+          <div class="s-code-text">A <code style="font-family:monospace;font-size:10px;">Langfuse</code> client is created on startup. Then one line does all the LLM tracing: <code style="font-family:monospace;font-size:10px;">litellm.success_callback = ["langfuse"]</code>. litellm fires this after every completion — it automatically captures model, prompt, response, tokens, and cost.</div>
+          <div class="s-code-label">Manual retrieval trace</div>
+          <div class="s-code-text"><code style="font-family:monospace;font-size:10px;">trace_retrieval()</code> creates a separate top-level trace recording the question and the chunks that came back.</div>
+          <div class="s-code-label">What's not here</div>
+          <div class="s-code-text">No session ID. No parent trace. No timing. No tags. The embedding call is invisible.</div>
+        </div>
+        <div class="s-code-right"><pre class="s-pre"><span class="cc"># tracing.py — the entire v1 instrumentation</span>
+
+<span class="ck">def</span> <span class="cf">init</span>(public_key, secret_key, host):
+    _langfuse = <span class="cm">Langfuse</span>(
+        public_key=public_key,
+        secret_key=secret_key,
+        host=host,
+    )
+    <span class="cc"># one line auto-traces every LLM call:</span>
+    <span class="cc"># input, output, tokens, cost — for free</span>
+    litellm.success_callback = [<span class="cs">"langfuse"</span>]  <span class="ch">← magic line</span>
+
+
+<span class="ck">def</span> <span class="cf">trace_retrieval</span>(question, chunks):
+    <span class="ck">if not</span> _langfuse:
+        <span class="ck">return</span>
+    t = _langfuse.<span class="cm">trace</span>(
+        name=<span class="cs">"retrieval"</span>,
+        input={<span class="cs">"question"</span>: question},
+    )
+    t.<span class="cm">update</span>(output={
+        <span class="cs">"num_chunks"</span>: len(chunks),
+        <span class="cs">"sources"</span>: [c.source <span class="ck">for</span> c <span class="ck">in</span> chunks],
+    })</pre></div>
+      </div>
+    </div></div>
+
+    <!-- ━━ 3. WHAT ONE TURN PRODUCES ━━ -->
+    <div class="slide-canvas"><div class="s-code">
+      <div class="s-code-header">
+        <span class="s-code-num">v1</span>
+        <span class="s-code-sep">·</span>
+        <span class="s-code-title">What one user turn actually runs</span>
+        <span class="s-code-file">pipeline.py</span>
+      </div>
+      <div class="s-code-body">
+        <div class="s-code-left">
+          <div class="s-code-label">Step by step</div>
+          <div class="s-code-text"><strong>1.</strong> Embed the question — <em>not traced</em><br><br><strong>2.</strong> Similarity search — <em>not traced</em><br><br><strong>3.</strong> <code style="font-family:monospace;font-size:10px;">trace_retrieval()</code> — creates a top-level <code style="font-family:monospace;font-size:10px;">"retrieval"</code> trace. No timing.<br><br><strong>4.</strong> <code style="font-family:monospace;font-size:10px;">litellm.acompletion()</code> — auto-creates a <em>separate</em> top-level trace. No link to step 3.</div>
+          <div class="s-code-label">Net result</div>
+          <div class="s-code-text">Two unrelated traces per turn land in Langfuse. You can't tell which retrieval fed which LLM call.</div>
+        </div>
+        <div class="s-code-right"><pre class="s-pre"><span class="ck">async def</span> <span class="cf">stream_answer</span>(question, repo):
+    settings = <span class="cm">get_settings</span>()
+
+    <span class="cc"># 1. embed — completely invisible in Langfuse</span>
+    [vec] = <span class="ck">await</span> <span class="cm">embed</span>([question], settings.embedding_model)
+
+    <span class="cc"># 2. search — completely invisible in Langfuse</span>
+    chunks = <span class="ck">await</span> repo.<span class="cm">similarity_search</span>(vec, ...)
+
+    <span class="cc"># 3. manual trace — top-level "retrieval" trace</span>
+    <span class="cc">#    no parent, no timing, no session</span>
+    tracing.<span class="cm">trace_retrieval</span>(question, chunks)  <span class="ch">← orphan</span>
+
+    <span class="cc"># 4. LLM call — litellm auto-creates its OWN trace</span>
+    <span class="cc">#    no link to the retrieval trace above</span>
+    response = <span class="ck">await</span> litellm.<span class="cm">acompletion</span>(
+        model=settings.llm_model,
+        messages=[...],
+        stream=<span class="cn">True</span>,
+        <span class="cc"># no metadata= → floats as a new top-level event</span>
+    )                                          <span class="ch">← orphan</span>
+    <span class="ck">async for</span> chunk <span class="ck">in</span> response:
+        <span class="ck">yield</span> chunk</pre></div>
+      </div>
+    </div></div>
+
+    <!-- ━━ 4. WHAT LANGFUSE SHOWS ━━ -->
+    <div class="slide-canvas"><div class="s-diagram">
+      <div class="s-diag-header">
+        <span class="s-diag-title">What Langfuse shows after 2 turns</span>
+        <span class="s-diag-sub">Traces table — v1-baseline-tracing</span>
+      </div>
+      <div class="s-diag-body">
+        <div class="s-diag-col">
+          <div class="s-diag-col-label">Langfuse traces list — 4 events, 0 structure</div>
+
+          <div class="trace-row">
+            <div class="trace-name auto">LLM · gpt-4o-mini &nbsp;<span class="trace-pill auto">auto</span></div>
+            <div class="trace-meta"><span>turn 2</span><span>312 tokens</span><span>$0.0021</span></div>
+          </div>
+
+          <div class="trace-unlinked">
+            <div class="trace-unlinked-line"></div>
+            <div class="trace-unlinked-label">not linked</div>
+            <div class="trace-unlinked-line"></div>
+          </div>
+
+          <div class="trace-row">
+            <div class="trace-name">retrieval &nbsp;<span class="trace-pill">manual</span></div>
+            <div class="trace-meta"><span>turn 2</span><span>4 chunks</span><span>no timing</span></div>
+          </div>
+
+          <div class="trace-unlinked">
+            <div class="trace-unlinked-line"></div>
+            <div class="trace-unlinked-label">not linked</div>
+            <div class="trace-unlinked-line"></div>
+          </div>
+
+          <div class="trace-row dimmed">
+            <div class="trace-name auto">LLM · gpt-4o-mini &nbsp;<span class="trace-pill auto">auto</span></div>
+            <div class="trace-meta"><span>turn 1</span><span>287 tokens</span><span>$0.0018</span></div>
+          </div>
+
+          <div class="trace-unlinked">
+            <div class="trace-unlinked-line"></div>
+            <div class="trace-unlinked-label">not linked</div>
+            <div class="trace-unlinked-line"></div>
+          </div>
+
+          <div class="trace-row dimmed">
+            <div class="trace-name">retrieval &nbsp;<span class="trace-pill">manual</span></div>
+            <div class="trace-meta"><span>turn 1</span><span>3 chunks</span><span>no timing</span></div>
+          </div>
+        </div>
+
+        <div class="s-diag-col">
+          <div class="s-diag-col-label">What you can and can't answer</div>
+          <div class="s-diag-annotations">
+            <div class="s-ann">
+              <div class="s-ann-marker" style="background:#5A8A5A;"></div>
+              <div class="s-ann-text"><strong style="color:#3A6A3A;">✓ Works</strong> — token count, cost, and the exact prompt/response for each LLM call. litellm captures all of this automatically.</div>
+            </div>
+            <div class="s-ann">
+              <div class="s-ann-marker" style="background:#5A8A5A;"></div>
+              <div class="s-ann-text"><strong style="color:#3A6A3A;">✓ Works</strong> — which chunks were retrieved and from which source files.</div>
+            </div>
+            <div class="s-ann">
+              <div class="s-ann-marker"></div>
+              <div class="s-ann-text"><strong>✗ Missing</strong> — which retrieval fed which LLM call. The 4 rows are in random order; there's no parent-child link.</div>
+            </div>
+            <div class="s-ann">
+              <div class="s-ann-marker"></div>
+              <div class="s-ann-text"><strong>✗ Missing</strong> — conversation view. No session_id means turns 1 and 2 look like unrelated requests from strangers.</div>
+            </div>
+            <div class="s-ann">
+              <div class="s-ann-marker"></div>
+              <div class="s-ann-text"><strong>✗ Missing</strong> — latency. You see tokens but not how long retrieval took or when the first token arrived.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div></div>
+
+    <!-- ━━ 5. THE GAPS ━━ -->
+    <div class="slide-canvas"><div class="s-content">
+      <div class="s-eyebrow"><div class="s-eyebrow-sq"></div><span class="s-eyebrow-text">Why this matters — what you can't score or debug</span></div>
+      <div class="s-h1">You can't score what you can't see</div>
+      <div class="s-rows">
+        <div class="s-row">
+          <span class="s-row-label"><span class="s-row-accent">Embedding</span> — invisible</span>
+          <span class="s-row-sub">The vector search is the first place retrieval can fail. If the embedding is off, every chunk that follows is wrong. Zero signal today.</span>
+        </div>
+        <div class="s-row">
+          <span class="s-row-label"><span class="s-row-accent">Retrieval latency</span> — unknown</span>
+          <span class="s-row-sub">The LLM call has a token count. But if retrieval is slow, you'll never know — no timing was recorded. You can't optimize what you don't measure.</span>
+        </div>
+        <div class="s-row">
+          <span class="s-row-label"><span class="s-row-accent">TTFT</span> — not captured</span>
+          <span class="s-row-sub">Time-to-first-token is the most user-visible quality signal. Without it you're blind to the latency your users actually experience.</span>
+        </div>
+        <div class="s-row">
+          <span class="s-row-label"><span class="s-row-accent">Conversations</span> — fragmented</span>
+          <span class="s-row-sub">If a user asks 5 follow-up questions, you have 10 orphaned traces. You cannot replay the conversation or evaluate it end-to-end.</span>
+        </div>
+      </div>
+      <div class="s-callout">A span you didn't emit is a signal you'll never get. → This is what the next 45 minutes fixes.</div>
+    </div></div>
+
+  </div>
+
+  <div class="controls">
+    <button class="ctrl-btn" id="btn-prev" aria-label="Previous">&#8592;</button>
+    <span class="ctrl-counter" id="counter">1 / 5</span>
+    <button class="ctrl-btn" id="btn-next" aria-label="Next">&#8594;</button>
+  </div>
+</div>
+
+<script>
+  var slides  = Array.from(document.querySelectorAll('.slide-canvas'));
+  var total   = slides.length;
+  var current = 0;
+  var stage   = document.getElementById('stage');
+  var counter = document.getElementById('counter');
+  var btnPrev = document.getElementById('btn-prev');
+  var btnNext = document.getElementById('btn-next');
+
+  function show(n) {
+    slides[current].classList.remove('active');
+    current = Math.max(0, Math.min(total - 1, n));
+    slides[current].classList.add('active');
+    counter.textContent = (current + 1) + ' / ' + total;
+    btnPrev.disabled = current === 0;
+    btnNext.disabled = current === total - 1;
+  }
+
+  function scale() {
+    var vw = window.innerWidth;
+    var vh = window.innerHeight - 60;
+    var s  = Math.min(vw / 800, vh / 450);
+    stage.style.width  = Math.round(800 * s) + 'px';
+    stage.style.height = Math.round(450 * s) + 'px';
+    slides.forEach(function(el) { el.style.transform = 'scale(' + s + ')'; });
+  }
+
+  btnPrev.addEventListener('click', function() { show(current - 1); });
+  btnNext.addEventListener('click', function() { show(current + 1); });
+  document.addEventListener('keydown', function(e) {
+    if (e.key === 'ArrowRight' || e.key === 'ArrowDown' || e.key === ' ') { e.preventDefault(); show(current + 1); }
+    if (e.key === 'ArrowLeft'  || e.key === 'ArrowUp')                    { e.preventDefault(); show(current - 1); }
+  });
+
+  window.addEventListener('resize', scale);
+  scale();
+  show(0);
+</script>

@@ -1,0 +1,424 @@
+<meta charset="utf-8">
+<title>03 · Tracing v2: Taking Tracing to Another Level — Gen AI Engineering · Cornelsen</title>
+<meta name="description" content="45-minute hands-on session: upgrading from v1 baseline tracing to structured spans, sessions, and latency metrics.">
+<style>
+:root {
+  --night:     #1A1321;
+  --berry:     #7E1C42;
+  --gold:      #C8924C;
+  --parchment: #EDE8DF;
+  --ink:       #1D1422;
+  --chalk:     #F4F1EC;
+  --rule:      #D4CCBC;
+  --muted:     #8A7E72;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+html, body { width: 100%; height: 100%; background: #0D0A10; overflow: hidden; font-family: Georgia, 'Times New Roman', serif; }
+
+.deck { width: 100vw; height: 100vh; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 12px; }
+.stage-wrap { position: relative; }
+.slide-canvas { position: absolute; top: 0; left: 0; width: 800px; height: 450px; transform-origin: top left; overflow: hidden; display: none; }
+.slide-canvas.active { display: block; }
+
+.controls { display: flex; align-items: center; gap: 12px; flex-shrink: 0; }
+.ctrl-btn { background: none; border: 1px solid rgba(244,241,236,0.18); color: rgba(244,241,236,0.55); width: 32px; height: 32px; cursor: pointer; font-size: 14px; display: flex; align-items: center; justify-content: center; }
+.ctrl-btn:hover:not(:disabled) { background: rgba(244,241,236,0.08); }
+.ctrl-btn:disabled { opacity: 0.2; cursor: default; }
+.ctrl-counter { font-family: 'SF Mono','Menlo',monospace; font-size: 11px; color: rgba(244,241,236,0.3); min-width: 52px; text-align: center; font-variant-numeric: tabular-nums; user-select: none; }
+
+/* ── SECTION DIVIDER ── */
+.s-div { width: 800px; height: 450px; display: grid; grid-template-rows: 290px 160px; }
+.s-div-top { background: var(--berry); padding: 0 60px; display: flex; flex-direction: column; justify-content: center; }
+.s-div-eyebrow { font-family: system-ui,sans-serif; font-weight: 600; font-size: 9px; letter-spacing: 0.14em; text-transform: uppercase; color: rgba(200,146,76,0.85); margin-bottom: 14px; }
+.s-div-title { font-weight: bold; color: white; line-height: 1.06; }
+.s-div-bottom { background: var(--night); padding: 0 60px; display: flex; align-items: center; }
+.s-div-meta { font-family: system-ui,sans-serif; font-size: 10px; letter-spacing: 0.06em; text-transform: uppercase; color: rgba(244,241,236,0.28); }
+.s-div-meta strong { color: rgba(244,241,236,0.45); font-weight: 600; }
+
+/* ── CONTENT — ROWS ── */
+.s-content { width: 800px; height: 450px; background: var(--parchment); padding: 28px 44px 22px; display: flex; flex-direction: column; }
+.s-eyebrow { display: flex; align-items: center; gap: 7px; margin-bottom: 10px; }
+.s-eyebrow-sq { width: 9px; height: 9px; background: var(--berry); flex-shrink: 0; }
+.s-eyebrow-text { font-family: system-ui,sans-serif; font-weight: 600; font-size: 9px; letter-spacing: 0.13em; text-transform: uppercase; color: var(--berry); }
+.s-h1 { font-size: 28px; font-weight: bold; color: var(--ink); line-height: 1.07; margin-bottom: 16px; }
+.s-rows { display: flex; flex-direction: column; gap: 7px; flex: 1; }
+.s-row { background: white; border: 1px solid var(--rule); padding: 10px 16px; display: flex; align-items: baseline; gap: 16px; }
+.s-row-label { font-size: 12px; font-weight: bold; color: var(--ink); flex-shrink: 0; min-width: 180px; }
+.s-row-accent { color: var(--berry); }
+.s-row-sub { font-style: italic; font-size: 11px; color: rgba(29,20,34,0.5); line-height: 1.4; }
+.s-row-num { font-family: system-ui,sans-serif; font-size: 10px; font-weight: 700; color: var(--gold); min-width: 20px; flex-shrink: 0; }
+.s-callout { font-size: 15px; font-weight: bold; font-style: italic; color: var(--berry); margin-top: 12px; }
+
+/* ── CODE SLIDE ── */
+.s-code { width: 800px; height: 450px; display: flex; flex-direction: column; }
+.s-code-header { background: var(--night); height: 50px; flex-shrink: 0; padding: 0 28px; display: flex; align-items: center; gap: 14px; }
+.s-code-num { font-family: system-ui,sans-serif; font-size: 8px; font-weight: 700; letter-spacing: 0.16em; text-transform: uppercase; color: var(--gold); }
+.s-code-sep { color: rgba(244,241,236,0.2); font-size: 14px; }
+.s-code-title { font-size: 19px; font-weight: bold; color: var(--chalk); line-height: 1; }
+.s-code-file { font-family: 'SF Mono','Menlo',monospace; font-size: 9px; color: rgba(200,146,76,0.6); margin-left: auto; }
+.s-code-body { flex: 1; display: grid; grid-template-columns: 272px 528px; }
+.s-code-left { background: var(--parchment); padding: 14px 16px 14px 22px; display: flex; flex-direction: column; gap: 6px; border-right: 1px solid rgba(212,204,188,0.4); }
+.s-code-label { font-family: system-ui,sans-serif; font-size: 7.5px; font-weight: 700; letter-spacing: 0.14em; text-transform: uppercase; color: var(--berry); margin-top: 8px; }
+.s-code-label:first-child { margin-top: 0; }
+.s-code-text { font-size: 10.5px; color: var(--ink); line-height: 1.52; }
+.s-code-badge { display: inline-block; font-family: system-ui,sans-serif; font-size: 8px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; padding: 2px 7px; margin-top: 6px; }
+.s-code-badge.before { background: rgba(126,28,66,0.12); color: var(--berry); }
+.s-code-badge.after  { background: rgba(200,146,76,0.15); color: #9A6020; }
+.s-code-right { background: #13101C; padding: 14px 18px; overflow: hidden; }
+pre.s-pre { font-family: 'SF Mono','Menlo','Consolas',monospace; font-size: 10.5px; line-height: 1.65; color: #A8BECE; white-space: pre; margin: 0; }
+/* syntax tokens */
+.ck { color: #9B7EA8; }           /* keyword */
+.cf { color: var(--gold); }       /* function def name */
+.cm { color: #6AAFB0; }           /* method call */
+.cs { color: #78A870; }           /* string */
+.cc { color: #3A5468; }           /* comment */
+.cn { color: #C8814C; }           /* None / number */
+.ch { color: rgba(200,146,76,0.5); font-style: italic; } /* highlight line */
+
+/* ── STATEMENT ── */
+.s-statement { width: 800px; height: 450px; background: var(--parchment); padding: 52px 60px; display: flex; flex-direction: column; justify-content: center; }
+.s-statement-h1 { font-size: 52px; font-weight: bold; color: var(--ink); line-height: 1.05; margin-bottom: 22px; }
+.s-statement-sub { font-style: italic; font-size: 17px; color: rgba(29,20,34,0.5); line-height: 1.55; max-width: 560px; }
+</style>
+
+<div class="deck">
+  <div class="stage-wrap" id="stage">
+
+    <!-- ━━ 1. SECTION DIVIDER ━━ -->
+    <div class="slide-canvas"><div class="s-div">
+      <div class="s-div-top">
+        <div class="s-div-eyebrow">13:30 · 45 minutes · Hands-on</div>
+        <div class="s-div-title" style="font-size:44px;">Taking Tracing<br>to Another Level</div>
+      </div>
+      <div class="s-div-bottom"><div class="s-div-meta"><strong>Repo</strong> &nbsp;langfuse-demo · branch: v1-baseline-tracing → v2-linked-traces</div></div>
+    </div></div>
+
+    <!-- ━━ 2. RECAP: V1 STATE ━━ -->
+    <div class="slide-canvas"><div class="s-content">
+      <div class="s-eyebrow"><div class="s-eyebrow-sq"></div><span class="s-eyebrow-text">Starting point — v1-baseline-tracing</span></div>
+      <div class="s-h1">What tracing looks like right now</div>
+      <div class="s-rows">
+        <div class="s-row">
+          <span class="s-row-label">Two orphaned traces per turn</span>
+          <span class="s-row-sub">litellm auto-creates one trace for the LLM call. We manually create another for retrieval. They are unrelated — no parent-child link.</span>
+        </div>
+        <div class="s-row">
+          <span class="s-row-label">No conversation view</span>
+          <span class="s-row-sub">Without a <span style="font-family:monospace;font-size:10px;background:rgba(29,20,34,0.08);padding:1px 4px;">session_id</span>, each turn is isolated. You cannot replay a conversation or see how turn 3 relates to turn 1.</span>
+        </div>
+        <div class="s-row">
+          <span class="s-row-label">No latency data</span>
+          <span class="s-row-sub">We know the LLM's token count but not how long retrieval took, when the first token arrived (TTFT), or the total turn time.</span>
+        </div>
+        <div class="s-row">
+          <span class="s-row-label">No tags</span>
+          <span class="s-row-sub">Can't filter traces by model version, dataset, or experiment name. Everything looks the same in Langfuse.</span>
+        </div>
+      </div>
+      <div class="s-callout">Result: 30,000 traces, zero structure.</div>
+    </div></div>
+
+    <!-- ━━ 3. FIVE IMPROVEMENTS ━━ -->
+    <div class="slide-canvas"><div class="s-content">
+      <div class="s-eyebrow"><div class="s-eyebrow-sq"></div><span class="s-eyebrow-text">v2-linked-traces — what we're adding</span></div>
+      <div class="s-h1">Five changes, one coherent trace</div>
+      <div class="s-rows">
+        <div class="s-row">
+          <span class="s-row-num">01</span>
+          <span class="s-row-label"><span class="s-row-accent">session_id</span> — conversation grouping</span>
+          <span class="s-row-sub">Thread a stable session ID from the UI through every turn → Langfuse shows the full conversation replay.</span>
+        </div>
+        <div class="s-row">
+          <span class="s-row-num">02</span>
+          <span class="s-row-label"><span class="s-row-accent">start_trace()</span> — one parent per turn</span>
+          <span class="s-row-sub">Explicitly create a <code style="font-size:10px;font-family:monospace;">rag_query</code> trace per turn. Everything else hangs off it.</span>
+        </div>
+        <div class="s-row">
+          <span class="s-row-num">03</span>
+          <span class="s-row-label"><span class="s-row-accent">trace.span()</span> — retrieval as child span</span>
+          <span class="s-row-sub">Retrieval becomes a child span, not a top-level trace. Latency and chunk count are recorded.</span>
+        </div>
+        <div class="s-row">
+          <span class="s-row-num">04</span>
+          <span class="s-row-label"><span class="s-row-accent">existing_trace_id</span> — link LLM calls</span>
+          <span class="s-row-sub">Pass <code style="font-size:10px;font-family:monospace;">metadata={"existing_trace_id": trace.id}</code> to litellm → the generation attaches to our parent trace.</span>
+        </div>
+        <div class="s-row">
+          <span class="s-row-num">05</span>
+          <span class="s-row-label"><span class="s-row-accent">TTFT + total latency</span> — timing metrics</span>
+          <span class="s-row-sub">Measure time-to-first-token and full turn latency with <code style="font-size:10px;font-family:monospace;">time.monotonic()</code> — stored on the parent trace.</span>
+        </div>
+      </div>
+    </div></div>
+
+    <!-- ━━ 4. CODE: SESSION ID ━━ -->
+    <div class="slide-canvas"><div class="s-code">
+      <div class="s-code-header">
+        <span class="s-code-num">Change 01</span>
+        <span class="s-code-sep">·</span>
+        <span class="s-code-title">session_id — link turns into a conversation</span>
+        <span class="s-code-file">app.py · pipeline.py</span>
+      </div>
+      <div class="s-code-body">
+        <div class="s-code-left">
+          <div class="s-code-label">Why</div>
+          <div class="s-code-text">Without a session_id, each user turn is an isolated event. Langfuse can't group them into a conversation replay.</div>
+          <div class="s-code-label">What</div>
+          <div class="s-code-text">The UI generates a stable ID per chat session and sends it with every request. The pipeline threads it to the trace.</div>
+          <div class="s-code-label">Result in Langfuse</div>
+          <div class="s-code-text">Sessions view shows every turn in order — fully replayable and scoreable as a unit.</div>
+        </div>
+        <div class="s-code-right"><pre class="s-pre"><span class="cc"># app.py — add to request model</span>
+<span class="ck">class</span> <span class="cf">ChatRequest</span>(BaseModel):
+    question: str
+    session_id: str | <span class="cn">None</span> = <span class="cn">None</span>  <span class="ch">← new</span>
+
+
+<span class="cc"># pipeline.py — accept and forward</span>
+<span class="ck">async def</span> <span class="cf">stream_answer</span>(
+    question: str,
+    repo: ChunkRepository,
+    session_id: str | <span class="cn">None</span> = <span class="cn">None</span>,  <span class="ch">← new</span>
+) -> AsyncIterator[str]:
+    ...
+    trace = tracing.<span class="cm">start_trace</span>(
+        question,
+        session_id,     <span class="ch">← passed through</span>
+        settings.llm_model,
+    )</pre></div>
+      </div>
+    </div></div>
+
+    <!-- ━━ 5. CODE: ONE TRACE PER TURN ━━ -->
+    <div class="slide-canvas"><div class="s-code">
+      <div class="s-code-header">
+        <span class="s-code-num">Change 02</span>
+        <span class="s-code-sep">·</span>
+        <span class="s-code-title">start_trace() — one parent trace per turn</span>
+        <span class="s-code-file">tracing.py</span>
+      </div>
+      <div class="s-code-body">
+        <div class="s-code-left">
+          <span class="s-code-badge before">v1</span>
+          <div class="s-code-text">litellm auto-creates a trace for the LLM call. Retrieval creates another. Both are top-level — unrelated to each other.</div>
+          <span class="s-code-badge after">v2</span>
+          <div class="s-code-text">We explicitly create one <code style="font-family:monospace;font-size:10px;">rag_query</code> trace per turn and get its ID. Everything else becomes a child of this parent.</div>
+          <div class="s-code-label">Also added</div>
+          <div class="s-code-text"><code style="font-family:monospace;font-size:10px;">tags</code> let you filter by model or dataset in Langfuse dashboards.</div>
+        </div>
+        <div class="s-code-right"><pre class="s-pre"><span class="cc"># tracing.py — replaces trace_retrieval()</span>
+<span class="ck">def</span> <span class="cf">start_trace</span>(
+    question: str,
+    session_id: str | <span class="cn">None</span>,
+    model: str,
+):
+    <span class="ck">if not</span> _langfuse:
+        <span class="ck">return None</span>
+    <span class="ck">return</span> _langfuse.<span class="cm">trace</span>(
+        name=<span class="cs">"rag_query"</span>,
+        input={<span class="cs">"question"</span>: question},
+        session_id=session_id,   <span class="ch">← groups turns</span>
+        tags=[model, <span class="cs">"sherlock-holmes"</span>],  <span class="ch">← filterable</span>
+    )
+
+
+<span class="cc"># pipeline.py — call at the top of each turn</span>
+trace = tracing.<span class="cm">start_trace</span>(
+    question, session_id, settings.llm_model
+)
+trace_id = trace.id <span class="ck">if</span> trace <span class="ck">else None</span></pre></div>
+      </div>
+    </div></div>
+
+    <!-- ━━ 6. CODE: RETRIEVAL SPAN ━━ -->
+    <div class="slide-canvas"><div class="s-code">
+      <div class="s-code-header">
+        <span class="s-code-num">Change 03</span>
+        <span class="s-code-sep">·</span>
+        <span class="s-code-title">trace.span() — retrieval as a child span</span>
+        <span class="s-code-file">tracing.py · pipeline.py</span>
+      </div>
+      <div class="s-code-body">
+        <div class="s-code-left">
+          <span class="s-code-badge before">v1</span>
+          <div class="s-code-text">Retrieval is a top-level trace — not connected to the LLM call. You see the chunks but not in context of the full turn.</div>
+          <span class="s-code-badge after">v2</span>
+          <div class="s-code-text">Retrieval becomes a child span of the parent trace. You see retrieval latency, chunk count, and source files — nested inside the turn.</div>
+          <div class="s-code-label">In Langfuse</div>
+          <div class="s-code-text">Trace tree: <code style="font-family:monospace;font-size:10px;">rag_query → retrieval span → generation</code>. Click any span to inspect.</div>
+        </div>
+        <div class="s-code-right"><pre class="s-pre"><span class="cc"># tracing.py</span>
+<span class="ck">def</span> <span class="cf">record_retrieval</span>(
+    trace, chunks: list[Chunk], latency_ms: float
+) -> <span class="cn">None</span>:
+    <span class="ck">if not</span> trace:
+        <span class="ck">return</span>
+    span = trace.<span class="cm">span</span>(name=<span class="cs">"retrieval"</span>)  <span class="ch">← child span</span>
+    span.<span class="cm">update</span>(
+        output={
+            <span class="cs">"num_chunks"</span>: len(chunks),
+            <span class="cs">"sources"</span>: [c.source <span class="ck">for</span> c <span class="ck">in</span> chunks],
+        },
+        metadata={<span class="cs">"latency_ms"</span>: round(latency_ms, <span class="cn">1</span>)},
+    )
+    span.<span class="cm">end</span>()
+
+
+<span class="cc"># pipeline.py — measure and record</span>
+retrieval_ms = (time.<span class="cm">monotonic</span>() - t0) * <span class="cn">1000</span>
+tracing.<span class="cm">record_retrieval</span>(trace, chunks, retrieval_ms)</pre></div>
+      </div>
+    </div></div>
+
+    <!-- ━━ 7. CODE: EXISTING TRACE ID ━━ -->
+    <div class="slide-canvas"><div class="s-code">
+      <div class="s-code-header">
+        <span class="s-code-num">Change 04</span>
+        <span class="s-code-sep">·</span>
+        <span class="s-code-title">existing_trace_id — link litellm calls to parent</span>
+        <span class="s-code-file">embed.py · pipeline.py</span>
+      </div>
+      <div class="s-code-body">
+        <div class="s-code-left">
+          <div class="s-code-label">The trick</div>
+          <div class="s-code-text">litellm auto-traces every LLM call as a new top-level event. Passing <code style="font-family:monospace;font-size:10px;">existing_trace_id</code> in the <code style="font-family:monospace;font-size:10px;">metadata</code> dict tells it to attach this generation to our parent trace instead.</div>
+          <div class="s-code-label">Applies to both</div>
+          <div class="s-code-text">The <strong>embedding call</strong> (in embed.py) and the <strong>chat completion</strong> (in pipeline.py) both need this — otherwise they float as separate top-level traces.</div>
+        </div>
+        <div class="s-code-right"><pre class="s-pre"><span class="cc"># embed.py — link embedding to parent trace</span>
+<span class="ck">async def</span> <span class="cf">embed</span>(
+    texts: list[str],
+    model: str,
+    trace_id: str | <span class="cn">None</span> = <span class="cn">None</span>,  <span class="ch">← new param</span>
+) -> list[list[float]]:
+    metadata = (
+        {<span class="cs">"existing_trace_id"</span>: trace_id}
+        <span class="ck">if</span> trace_id <span class="ck">else</span> {}
+    )
+    response = <span class="ck">await</span> litellm.<span class="cm">aembedding</span>(
+        model=model, input=texts, metadata=metadata
+    )
+
+
+<span class="cc"># pipeline.py — link completion to parent trace</span>
+metadata = (
+    {<span class="cs">"existing_trace_id"</span>: trace.id}
+    <span class="ck">if</span> trace <span class="ck">else</span> {}
+)
+response = <span class="ck">await</span> litellm.<span class="cm">acompletion</span>(
+    model=settings.llm_model,
+    messages=[...],
+    stream=<span class="cn">True</span>,
+    metadata=metadata,  <span class="ch">← attaches to parent</span>
+)</pre></div>
+      </div>
+    </div></div>
+
+    <!-- ━━ 8. CODE: TTFT + TOTAL LATENCY ━━ -->
+    <div class="slide-canvas"><div class="s-code">
+      <div class="s-code-header">
+        <span class="s-code-num">Change 05</span>
+        <span class="s-code-sep">·</span>
+        <span class="s-code-title">TTFT + total latency — timing the full turn</span>
+        <span class="s-code-file">pipeline.py · tracing.py</span>
+      </div>
+      <div class="s-code-body">
+        <div class="s-code-left">
+          <div class="s-code-label">TTFT</div>
+          <div class="s-code-text">Time-to-first-token is the most user-visible latency signal. We detect it when the first streaming delta arrives and store it on the trace.</div>
+          <div class="s-code-label">Total latency</div>
+          <div class="s-code-text">A single clock started at the top of the turn covers embed → retrieve → generate → last token. Stored alongside TTFT for full picture.</div>
+          <div class="s-code-label">In Langfuse</div>
+          <div class="s-code-text">Both values appear in <code style="font-family:monospace;font-size:10px;">trace.metadata</code> — filterable in dashboards and usable as heuristic score dimensions.</div>
+        </div>
+        <div class="s-code-right"><pre class="s-pre"><span class="cc"># pipeline.py</span>
+t0 = time.<span class="cm">monotonic</span>()            <span class="ch">← turn starts</span>
+
+[vec] = <span class="ck">await</span> <span class="cm">embed</span>([question], ...)
+retrieval_ms = (time.<span class="cm">monotonic</span>() - t0) * <span class="cn">1000</span>
+
+t1 = time.<span class="cm">monotonic</span>()            <span class="ch">← LLM starts</span>
+ttft_ms: float | <span class="cn">None</span> = <span class="cn">None</span>
+
+<span class="ck">async for</span> chunk <span class="ck">in</span> response:
+    <span class="ck">if</span> delta := chunk.choices[<span class="cn">0</span>].delta.content:
+        <span class="ck">if</span> ttft_ms <span class="ck">is None</span>:
+            ttft_ms = (time.<span class="cm">monotonic</span>() - t1) * <span class="cn">1000  </span><span class="ch">← TTFT</span>
+        <span class="ck">yield</span> delta
+
+tracing.<span class="cm">end_trace</span>(
+    trace, ttft_ms,
+    total_ms=(time.<span class="cm">monotonic</span>() - t0) * <span class="cn">1000</span>,
+)
+
+<span class="cc"># tracing.py</span>
+<span class="ck">def</span> <span class="cf">end_trace</span>(trace, ttft_ms, total_ms):
+    trace.<span class="cm">update</span>(metadata={
+        <span class="cs">"ttft_ms"</span>:          round(ttft_ms, <span class="cn">1</span>) <span class="ck">if</span> ttft_ms <span class="ck">else None</span>,
+        <span class="cs">"total_latency_ms"</span>: round(total_ms, <span class="cn">1</span>),
+    })</pre></div>
+      </div>
+    </div></div>
+
+    <!-- ━━ 9. LAB ━━ -->
+    <div class="slide-canvas"><div class="s-statement">
+      <div class="s-eyebrow" style="margin-bottom:20px;"><div class="s-eyebrow-sq"></div><span class="s-eyebrow-text">Lab · ~15 minutes</span></div>
+      <div class="s-statement-h1">Your turn.</div>
+      <div class="s-statement-sub">
+        Switch to the <code style="font-family:monospace;font-size:15px;background:rgba(29,20,34,0.08);padding:2px 7px;">v2-linked-traces</code> branch and run the app.<br><br>
+        Send a few questions, then open Langfuse and verify:
+        <ul style="margin-top:14px;list-style:none;display:flex;flex-direction:column;gap:8px;">
+          <li style="padding-left:18px;position:relative;"><span style="position:absolute;left:0;color:var(--berry);">→</span> Each turn creates a single <code style="font-family:monospace;font-size:13px;">rag_query</code> trace with a <code style="font-family:monospace;font-size:13px;">retrieval</code> child span</li>
+          <li style="padding-left:18px;position:relative;"><span style="position:absolute;left:0;color:var(--berry);">→</span> All turns share the same <code style="font-family:monospace;font-size:13px;">session_id</code> — visible in the Sessions view</li>
+          <li style="padding-left:18px;position:relative;"><span style="position:absolute;left:0;color:var(--berry);">→</span> TTFT and total latency appear in <code style="font-family:monospace;font-size:13px;">trace.metadata</code></li>
+        </ul>
+      </div>
+    </div></div>
+
+  </div>
+
+  <div class="controls">
+    <button class="ctrl-btn" id="btn-prev" aria-label="Previous">&#8592;</button>
+    <span class="ctrl-counter" id="counter">1 / 9</span>
+    <button class="ctrl-btn" id="btn-next" aria-label="Next">&#8594;</button>
+  </div>
+</div>
+
+<script>
+  var slides  = Array.from(document.querySelectorAll('.slide-canvas'));
+  var total   = slides.length;
+  var current = 0;
+  var stage   = document.getElementById('stage');
+  var counter = document.getElementById('counter');
+  var btnPrev = document.getElementById('btn-prev');
+  var btnNext = document.getElementById('btn-next');
+
+  function show(n) {
+    slides[current].classList.remove('active');
+    current = Math.max(0, Math.min(total - 1, n));
+    slides[current].classList.add('active');
+    counter.textContent = (current + 1) + ' / ' + total;
+    btnPrev.disabled = current === 0;
+    btnNext.disabled = current === total - 1;
+  }
+
+  function scale() {
+    var vw = window.innerWidth;
+    var vh = window.innerHeight - 60;
+    var s  = Math.min(vw / 800, vh / 450);
+    stage.style.width  = Math.round(800 * s) + 'px';
+    stage.style.height = Math.round(450 * s) + 'px';
+    slides.forEach(function(el) { el.style.transform = 'scale(' + s + ')'; });
+  }
+
+  btnPrev.addEventListener('click', function() { show(current - 1); });
+  btnNext.addEventListener('click', function() { show(current + 1); });
+  document.addEventListener('keydown', function(e) {
+    if (e.key === 'ArrowRight' || e.key === 'ArrowDown' || e.key === ' ') { e.preventDefault(); show(current + 1); }
+    if (e.key === 'ArrowLeft'  || e.key === 'ArrowUp')                    { e.preventDefault(); show(current - 1); }
+  });
+
+  window.addEventListener('resize', scale);
+  scale();
+  show(0);
+</script>
