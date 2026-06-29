@@ -6,7 +6,6 @@ from contextlib import asynccontextmanager
 from pathlib import Path
 
 from fastapi import FastAPI
-from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import FileResponse, StreamingResponse
 from pydantic import BaseModel
 
@@ -32,7 +31,6 @@ async def lifespan(app: FastAPI) -> AsyncIterator[None]:
 
 
 app = FastAPI(lifespan=lifespan)
-app.add_middleware(CORSMiddleware, allow_origins=["*"], allow_methods=["*"], allow_headers=["*"])
 
 FRONTEND = Path(__file__).parent.parent.parent / "frontend" / "index.html"
 
@@ -55,8 +53,3 @@ async def chat(req: ChatRequest) -> StreamingResponse:
 @app.get("/health")
 async def health() -> dict:
     return {"status": "ok"}
-
-
-def main() -> None:
-    import uvicorn
-    uvicorn.run("rag.app:app", host="0.0.0.0", port=7932, reload=True)

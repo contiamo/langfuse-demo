@@ -3,8 +3,6 @@
 This is the starting point. Participants will progressively improve this
 toward a single structured trace per turn in v2.
 """
-from __future__ import annotations
-
 from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:

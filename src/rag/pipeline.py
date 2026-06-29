@@ -1,6 +1,4 @@
 """Core RAG logic: embed → retrieve → stream LLM response."""
-from __future__ import annotations
-
 from collections.abc import AsyncIterator
 
 import litellm
