@@ -11,6 +11,7 @@ Markdown versions of the HTML slide decks in `../slides-html/`. Content-faithful
 | `02-tracing-v1.md` | What Basic Tracing Looks Like | 5 |
 | `03-tracing-v2.md` | Taking Tracing to Another Level | 9 |
 | `04-evaluation-datasets.md` | Evaluation Datasets, Scoring & Experiments | 16 |
+| `05-ai-assisted-coding.md` | AI-Assisted Coding for GenAI Engineering | 9 |
 
 ## Rendering with Marp
 
