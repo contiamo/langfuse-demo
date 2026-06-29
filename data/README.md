@@ -4,13 +4,16 @@ Put your documents here. The ingestion pipeline accepts `.pdf` and `.txt` files.
 
 ## Getting the demo dataset
 
-The demo uses **The Adventures of Sherlock Holmes** by Arthur Conan Doyle (1892) — public domain.
-
-Download as plain text from Project Gutenberg (CC0 / public domain):
+The demo uses two Sherlock Holmes books by Arthur Conan Doyle — both public domain.
 
 ```bash
-curl -o "data/adventures-of-sherlock-holmes.txt" \
-  "https://www.gutenberg.org/files/1661/1661-0.txt"
+# A Study in Scarlet (1887) — Holmes & Watson's first meeting, the Afghanistan deduction
+curl -o data/a-study-in-scarlet.txt \
+  https://www.gutenberg.org/files/244/244-0.txt
+
+# The Adventures of Sherlock Holmes (1892) — 12 short stories
+curl -o data/adventures-of-sherlock-holmes.txt \
+  https://www.gutenberg.org/files/1661/1661-0.txt
 ```
 
 Then ingest:
