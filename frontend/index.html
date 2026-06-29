@@ -313,7 +313,7 @@
 </main>
 
 <script>
-  const SESSION_ID = crypto.randomUUID(); // groups all turns of this tab into one Langfuse session
+  let SESSION_ID = crypto.randomUUID(); // groups all turns into one Langfuse session; reset on clear
 
   const messagesEl = document.getElementById('messages');
   const form = document.getElementById('form');
@@ -407,6 +407,7 @@
 
   document.getElementById('clear-btn').addEventListener('click', () => {
     messagesEl.innerHTML = '';
+    SESSION_ID = crypto.randomUUID();
   });
 </script>
 </body>
