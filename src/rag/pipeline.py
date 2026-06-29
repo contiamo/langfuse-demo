@@ -58,4 +58,8 @@ async def stream_answer(
             answer_parts.append(delta)
             yield delta
 
-    tracing.end_trace(trace, ttft_ms, (time.monotonic() - t0) * 1000, "".join(answer_parts))
+    tracing.end_trace(
+        trace, ttft_ms, (time.monotonic() - t0) * 1000,
+        answer="".join(answer_parts),
+        context=_context(chunks),
+    )
