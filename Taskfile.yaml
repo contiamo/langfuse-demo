@@ -52,12 +52,17 @@ tasks:
     cmds:
       - uv run pytest -v
 
-  "regression:test":
-    desc: Run eval dataset, assert faithfulness threshold
-    cmds:
-      - uv run pytest -v -m regression
-
   "dataset:seed":
     desc: Create eval dataset from recent Langfuse traces (requires LANGFUSE credentials)
     cmds:
       - uv run python scripts/seed_dataset.py
+
+  "experiment:run":
+    desc: Run dataset through the live pipeline and store results in Langfuse Experiments
+    cmds:
+      - uv run python scripts/run_experiment.py
+
+  "regression:test":
+    desc: Run experiment and exit non-zero if avg faithfulness < 0.70
+    cmds:
+      - uv run python scripts/run_experiment.py --threshold 0.70
