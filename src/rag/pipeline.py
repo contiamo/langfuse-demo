@@ -27,7 +27,6 @@ async def stream_answer(question: str, repo: ChunkRepository) -> AsyncIterator[s
     chunks = await repo.similarity_search(vec, top_k=settings.retrieval_top_k)
 
     tracing.trace_retrieval(question, chunks)
-    tracing.trace_llm_call(question, settings.llm_model)
 
     response = await litellm.acompletion(
         model=settings.llm_model,
