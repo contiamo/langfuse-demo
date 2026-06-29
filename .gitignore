@@ -220,3 +220,6 @@ __marimo__/
 # Local data files (download instructions in data/README.md)
 data/*.txt
 data/*.pdf
+
+# Playwright test artifacts
+.playwright-mcp/
