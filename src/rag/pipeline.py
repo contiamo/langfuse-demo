@@ -24,7 +24,9 @@ async def stream_answer(question: str, repo: ChunkRepository) -> AsyncIterator[s
     settings = get_settings()
 
     [vec] = await embed([question], settings.embedding_model)
-    chunks = await repo.similarity_search(vec, top_k=settings.retrieval_top_k)
+    chunks = await repo.similarity_search(
+        vec, top_k=settings.retrieval_top_k, min_similarity=settings.retrieval_min_similarity
+    )
 
     tracing.trace_retrieval(question, chunks)
 

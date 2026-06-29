@@ -12,6 +12,7 @@ class Settings(BaseSettings):
     llm_model: str = "gpt-4o-mini"
     embedding_model: str = "text-embedding-3-small"
     retrieval_top_k: int = 5
+    retrieval_min_similarity: float = 0.0  # cosine similarity threshold; 0.0 = off
 
     langfuse_public_key: str = ""
     langfuse_secret_key: str = ""

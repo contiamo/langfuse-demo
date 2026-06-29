@@ -44,16 +44,19 @@ class ChunkRepository:
         )
         await self._conn.commit()
 
-    async def similarity_search(self, embedding: list[float], top_k: int = 5) -> list[Chunk]:
+    async def similarity_search(
+        self, embedding: list[float], top_k: int = 5, min_similarity: float = 0.0
+    ) -> list[Chunk]:
         async with self._conn.cursor(row_factory=dict_row) as cur:
             await cur.execute(
                 """
                 SELECT source, page, content
                 FROM document_chunks
+                WHERE 1 - (embedding <=> %s::vector) >= %s
                 ORDER BY embedding <=> %s::vector
                 LIMIT %s
                 """,
-                (embedding, top_k),
+                (embedding, min_similarity, embedding, top_k),
             )
             rows = await cur.fetchall()
         return [

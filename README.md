@@ -81,6 +81,17 @@ LLM_MODEL=anthropic/claude-sonnet-4-6                       # Anthropic direct
 
 No code changes needed — litellm routes automatically.
 
+## Tuning retrieval
+
+Two knobs in `.env`, no code changes needed:
+
+| Variable | Default | Effect |
+|---|---|---|
+| `RETRIEVAL_TOP_K` | `5` | Number of chunks passed to the LLM as context |
+| `RETRIEVAL_MIN_SIMILARITY` | `0.0` | Cosine similarity threshold (0–1). `0.0` = off. Raise to e.g. `0.75` to drop weakly-matching chunks instead of sending them to the LLM. |
+
+A threshold of `0.0` means the closest 5 chunks are always returned, even if they are not actually relevant. Setting a threshold makes the system say "I don't know" when nothing in the corpus matches — useful for demonstrating retrieval quality in the workshop.
+
 ## Adding your own documents
 
 Drop any `.pdf` or `.txt` file into `data/` and run `task ingest`.
