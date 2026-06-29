@@ -1,0 +1,347 @@
+<meta charset="utf-8">
+<title>05 · AI-Assisted Coding for GenAI Engineering — Gen AI Engineering · Cornelsen</title>
+<meta name="description" content="45-minute field report: how we build software with coding agents at Contiamo — context, workflow, and verification.">
+<style>
+:root {
+  --night:     #1A1321;
+  --berry:     #7E1C42;
+  --gold:      #C8924C;
+  --parchment: #EDE8DF;
+  --ink:       #1D1422;
+  --chalk:     #F4F1EC;
+  --rule:      #D4CCBC;
+  --muted:     #8A7E72;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+html, body { width: 100%; height: 100%; background: #0D0A10; overflow: hidden; font-family: Georgia, 'Times New Roman', serif; }
+
+.deck { width: 100vw; height: 100vh; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 12px; }
+.stage-wrap { position: relative; }
+.slide-canvas { position: absolute; top: 0; left: 0; width: 800px; height: 450px; transform-origin: top left; overflow: hidden; display: none; }
+.slide-canvas.active { display: block; }
+
+.controls { display: flex; align-items: center; gap: 12px; flex-shrink: 0; }
+.ctrl-btn { background: none; border: 1px solid rgba(244,241,236,0.18); color: rgba(244,241,236,0.55); width: 32px; height: 32px; cursor: pointer; font-size: 14px; display: flex; align-items: center; justify-content: center; }
+.ctrl-btn:hover:not(:disabled) { background: rgba(244,241,236,0.08); }
+.ctrl-btn:disabled { opacity: 0.2; cursor: default; }
+.ctrl-counter { font-family: 'SF Mono','Menlo',monospace; font-size: 11px; color: rgba(244,241,236,0.3); min-width: 52px; text-align: center; font-variant-numeric: tabular-nums; user-select: none; }
+
+/* ── COVER ── */
+.s-cover { width: 800px; height: 450px; display: grid; grid-template-columns: 520px 280px; }
+.s-cover-left { background: var(--night); padding: 40px 48px; display: flex; flex-direction: column; justify-content: space-between; }
+.s-cover-right { background: var(--berry); display: flex; align-items: center; justify-content: center; }
+.s-wordmark { display: flex; align-items: center; gap: 8px; color: var(--chalk); font-family: system-ui,sans-serif; font-size: 9px; letter-spacing: 0.18em; text-transform: uppercase; opacity: 0.7; }
+.s-cover-body { display: flex; flex-direction: column; }
+.s-cover-eyebrow { font-family: system-ui,sans-serif; font-size: 9px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--gold); margin-bottom: 12px; font-weight: 600; }
+.s-cover-h1 { font-size: 56px; font-weight: bold; color: var(--chalk); line-height: 1.02; }
+.s-cover-h1-gold { color: var(--gold); }
+.s-cover-sub { font-style: italic; font-size: 16px; color: rgba(244,241,236,0.65); line-height: 1.45; margin-top: 16px; max-width: 400px; }
+.s-cover-footer { display: flex; flex-direction: column; gap: 2px; }
+.s-cover-speaker { font-size: 12px; font-weight: bold; color: var(--chalk); }
+.s-cover-role { font-size: 10px; color: rgba(244,241,236,0.4); }
+
+/* ── SECTION DIVIDER ── */
+.s-div { width: 800px; height: 450px; display: grid; grid-template-rows: 290px 160px; }
+.s-div-top { background: var(--berry); padding: 0 60px; display: flex; flex-direction: column; justify-content: center; }
+.s-div-eyebrow { font-family: system-ui,sans-serif; font-weight: 600; font-size: 9px; letter-spacing: 0.14em; text-transform: uppercase; color: rgba(244,241,236,0.7); margin-bottom: 16px; }
+.s-div-title { font-weight: bold; color: white; line-height: 1.04; font-size: 60px; }
+.s-div-bottom { background: var(--night); padding: 0 60px; display: flex; align-items: center; }
+.s-div-meta { font-family: system-ui,sans-serif; font-size: 10px; letter-spacing: 0.06em; text-transform: uppercase; color: rgba(244,241,236,0.28); }
+.s-div-meta strong { color: rgba(200,146,76,0.85); font-weight: 600; }
+
+/* ── CONTENT (shared) ── */
+.s-content { width: 800px; height: 450px; background: var(--parchment); padding: 32px 48px 26px; display: flex; flex-direction: column; }
+.s-eyebrow { display: flex; align-items: center; gap: 7px; margin-bottom: 11px; }
+.s-eyebrow-sq { width: 9px; height: 9px; background: var(--berry); flex-shrink: 0; }
+.s-eyebrow-text { font-family: system-ui,sans-serif; font-weight: 600; font-size: 9px; letter-spacing: 0.13em; text-transform: uppercase; color: var(--berry); }
+.s-h1 { font-size: 31px; font-weight: bold; color: var(--ink); line-height: 1.07; margin-bottom: 18px; }
+
+/* ── CONTENT — CARDS ── */
+.s-card-row { display: grid; grid-template-columns: repeat(5, 1fr); gap: 9px; flex: 1; }
+.s-card { background: white; border-top: 3px solid var(--berry); padding: 13px 13px; display: flex; flex-direction: column; gap: 7px; }
+.s-card.active { background: var(--berry); border-top-color: var(--gold); }
+.s-card-year { font-size: 25px; font-weight: bold; color: var(--berry); line-height: 1; }
+.s-card.active .s-card-year { color: var(--gold); }
+.s-card-title { font-size: 12.5px; font-weight: bold; color: var(--ink); line-height: 1.2; }
+.s-card.active .s-card-title { color: white; }
+.s-card hr { border: none; border-top: 1px solid rgba(0,0,0,0.1); }
+.s-card.active hr { border-top-color: rgba(255,255,255,0.2); }
+.s-card-sub { font-family: system-ui,sans-serif; font-size: 9px; font-weight: 700; color: var(--gold); letter-spacing: 0.02em; }
+.s-card-bullets { font-size: 9.5px; color: var(--ink); list-style: none; display: flex; flex-direction: column; gap: 3px; line-height: 1.3; }
+.s-card.active .s-card-bullets { color: rgba(244,241,236,0.9); }
+.s-card-bullets li::before { content: "• "; }
+.s-card-bullets .dim { color: rgba(29,20,34,0.4); font-style: italic; }
+.s-card.active .s-card-bullets .dim { color: rgba(244,241,236,0.4); }
+
+/* ── CONTENT — ROWS ── */
+.s-list-body { display: flex; flex-direction: column; gap: 8px; flex: 1; }
+.s-row-item { background: white; border: 1px solid rgba(212,204,188,0.8); padding: 12px 18px; display: flex; align-items: center; gap: 20px; }
+.s-row-label { font-size: 14px; font-weight: bold; color: var(--ink); }
+.s-row-accent { color: var(--berry); }
+.s-row-sub { font-style: italic; font-size: 12.5px; color: rgba(29,20,34,0.45); margin-left: auto; text-align: right; }
+.s-callout { font-size: 17px; font-weight: bold; color: var(--berry); font-style: italic; margin-top: 12px; }
+
+/* ── STATEMENT ── */
+.s-statement { width: 800px; height: 450px; background: var(--parchment); padding: 56px 64px; display: flex; flex-direction: column; justify-content: center; }
+.s-statement-h1 { font-size: 64px; font-weight: bold; color: var(--ink); line-height: 1.03; margin-bottom: 24px; }
+.s-statement-sub { font-style: italic; font-size: 20px; color: rgba(29,20,34,0.5); line-height: 1.5; max-width: 580px; }
+</style>
+
+<div class="deck">
+  <div class="stage-wrap" id="stage">
+
+    <!-- ━━ 1. COVER ━━ -->
+    <div class="slide-canvas"><div class="s-cover">
+      <div class="s-cover-left">
+        <div class="s-wordmark">
+          <svg width="14" height="14" viewBox="0 0 100 100" fill="none" aria-hidden="true">
+            <path d="M74 17 A35 35 0 1 0 74 83" stroke="currentColor" stroke-width="10" stroke-linecap="round"/>
+            <path d="M67 30 A22 22 0 1 0 67 70" stroke="currentColor" stroke-width="9" stroke-linecap="round"/>
+            <path d="M60 42 A10 10 0 1 0 60 58" stroke="currentColor" stroke-width="8" stroke-linecap="round"/>
+          </svg>
+          Contiamo
+        </div>
+        <div class="s-cover-body">
+          <div class="s-cover-eyebrow">Gen AI Engineering Workshop · Cornelsen · 30 June 2026</div>
+          <div class="s-cover-h1">How We Build<br><span class="s-cover-h1-gold">With AI.</span></div>
+          <div class="s-cover-sub">AI-assisted coding for GenAI engineering — the practices we've converged on at Contiamo, and why.</div>
+        </div>
+        <div class="s-cover-footer">
+          <div class="s-cover-speaker">Contiamo</div>
+          <div class="s-cover-role">09:45 · Leipziger Straße 126, Berlin</div>
+        </div>
+      </div>
+      <div class="s-cover-right">
+        <svg width="140" height="140" viewBox="0 0 100 100" fill="none" aria-hidden="true">
+          <path d="M74 17 A35 35 0 1 0 74 83" stroke="rgba(244,241,236,0.85)" stroke-width="8" stroke-linecap="round"/>
+          <path d="M67 30 A22 22 0 1 0 67 70" stroke="rgba(244,241,236,0.85)" stroke-width="7" stroke-linecap="round"/>
+          <path d="M60 42 A10 10 0 1 0 60 58" stroke="rgba(244,241,236,0.85)" stroke-width="6" stroke-linecap="round"/>
+        </svg>
+      </div>
+    </div></div>
+
+    <!-- ━━ 2. STATEMENT — FRAMING ━━ -->
+    <div class="slide-canvas"><div class="s-statement">
+      <div class="s-statement-h1">A field report,<br>not a tutorial.</div>
+      <div class="s-statement-sub">You already use these tools every day. So this is simply how we build software with coding agents at Contiamo — the practices we've converged on, and the ones we're convinced of.</div>
+    </div></div>
+
+    <!-- ━━ 3. DIVIDER — CONTEXT ━━ -->
+    <div class="slide-canvas"><div class="s-div">
+      <div class="s-div-top">
+        <div class="s-div-eyebrow">Part one of three</div>
+        <div class="s-div-title">Context</div>
+      </div>
+      <div class="s-div-bottom"><div class="s-div-meta"><strong>The principle</strong> &nbsp;What the agent can see before it writes a line of code</div></div>
+    </div></div>
+
+    <!-- ━━ 4. CONTENT CARDS — CONTEXT IN LAYERS ━━ -->
+    <div class="slide-canvas"><div class="s-content">
+      <div class="s-eyebrow"><div class="s-eyebrow-sq"></div><span class="s-eyebrow-text">Part one · Context</span></div>
+      <div class="s-h1">Context, in layers</div>
+      <div class="s-card-row">
+        <div class="s-card active">
+          <div class="s-card-year">All</div>
+          <div class="s-card-title">A shared baseline</div>
+          <hr>
+          <div class="s-card-sub">contiamo-context</div>
+          <ul class="s-card-bullets">
+            <li>Plugin, injected into every session</li>
+            <li>Very short — who we are, how we work</li>
+            <li class="dim">Same footing for everyone</li>
+          </ul>
+        </div>
+        <div class="s-card">
+          <div class="s-card-year">Repo</div>
+          <div class="s-card-title">Per-project manual</div>
+          <hr>
+          <div class="s-card-sub">CLAUDE.md / AGENTS.md</div>
+          <ul class="s-card-bullets">
+            <li>In every project</li>
+            <li>Conventions, architecture, commands</li>
+            <li class="dim">Auto-loaded as context</li>
+          </ul>
+        </div>
+        <div class="s-card">
+          <div class="s-card-year">Team</div>
+          <div class="s-card-title">Expert-owned skills</div>
+          <hr>
+          <div class="s-card-sub">Skills marketplace</div>
+          <ul class="s-card-bullets">
+            <li>Our own GitHub repo</li>
+            <li>Conventions, deployment, secrets</li>
+            <li class="dim">Maintained by domain experts</li>
+          </ul>
+        </div>
+        <div class="s-card">
+          <div class="s-card-year">Live</div>
+          <div class="s-card-title">Where work lives</div>
+          <hr>
+          <div class="s-card-sub">Connected systems</div>
+          <ul class="s-card-bullets">
+            <li>Tasks → Linear</li>
+            <li>Knowledge → Notion</li>
+            <li>Discussions → Slack</li>
+          </ul>
+        </div>
+        <div class="s-card">
+          <div class="s-card-year">Task</div>
+          <div class="s-card-title">What's relevant now</div>
+          <hr>
+          <div class="s-card-sub">Docs &amp; references</div>
+          <ul class="s-card-bullets">
+            <li>Docs for libraries we use</li>
+            <li>Relevant GitHub repos</li>
+            <li class="dim">Whatever the task needs</li>
+          </ul>
+        </div>
+      </div>
+    </div></div>
+
+    <!-- ━━ 5. DIVIDER — WORKFLOW ━━ -->
+    <div class="slide-canvas"><div class="s-div">
+      <div class="s-div-top">
+        <div class="s-div-eyebrow">Part two of three</div>
+        <div class="s-div-title">Workflow</div>
+      </div>
+      <div class="s-div-bottom"><div class="s-div-meta"><strong>The principle</strong> &nbsp;Align on the plan, then let it build</div></div>
+    </div></div>
+
+    <!-- ━━ 6. CONTENT ROWS — WORKFLOW ━━ -->
+    <div class="slide-canvas"><div class="s-content">
+      <div class="s-eyebrow"><div class="s-eyebrow-sq"></div><span class="s-eyebrow-text">Part two · Workflow</span></div>
+      <div class="s-h1">Decide the design. Delegate the build.</div>
+      <div class="s-list-body">
+        <div class="s-row-item">
+          <span class="s-row-label">Plan → review → iterate, then implement in <span class="s-row-accent">auto mode</span></span>
+          <span class="s-row-sub">Once the plan is agreed, implementation runs unsupervised, start to finish</span>
+        </div>
+        <div class="s-row-item">
+          <span class="s-row-label">Design docs for anything <span class="s-row-accent">new</span></span>
+          <span class="s-row-sub">Implementation is cheap — so the discussion lives at the design level</span>
+        </div>
+        <div class="s-row-item">
+          <span class="s-row-label">Parallel sessions and <span class="s-row-accent">subagents</span></span>
+          <span class="s-row-sub">Investigate across many; subagents report back just the conclusion, not the noise</span>
+        </div>
+        <div class="s-row-item">
+          <span class="s-row-label">The <span class="s-row-accent">right model</span> for the job</span>
+          <span class="s-row-sub">Opus for hard design and review, faster models for mechanical work</span>
+        </div>
+        <div class="s-row-item">
+          <span class="s-row-label">Sandboxed where <span class="s-row-accent">security is crucial</span></span>
+          <span class="s-row-sub">On sensitive projects, agents run isolated from the host</span>
+        </div>
+      </div>
+      <div class="s-callout">The expensive judgement moved up to design — that's where our attention goes.</div>
+    </div></div>
+
+    <!-- ━━ 7. DIVIDER — VERIFICATION ━━ -->
+    <div class="slide-canvas"><div class="s-div">
+      <div class="s-div-top">
+        <div class="s-div-eyebrow">Part three of three</div>
+        <div class="s-div-title">Verification</div>
+      </div>
+      <div class="s-div-bottom"><div class="s-div-meta"><strong>The principle</strong> &nbsp;Nothing ships unseen</div></div>
+    </div></div>
+
+    <!-- ━━ 8. CONTENT ROWS — VERIFICATION ━━ -->
+    <div class="slide-canvas"><div class="s-content">
+      <div class="s-eyebrow"><div class="s-eyebrow-sq"></div><span class="s-eyebrow-text">Part three · Verification</span></div>
+      <div class="s-h1">Autonomy is safe because checking is built in</div>
+      <div class="s-list-body">
+        <div class="s-row-item">
+          <span class="s-row-label">One command to <span class="s-row-accent">run, test, lint, format</span></span>
+          <span class="s-row-sub">So the agent can prove its change works — that's its feedback loop</span>
+        </div>
+        <div class="s-row-item">
+          <span class="s-row-label">Each agent gets its <span class="s-row-accent">own running stack</span></span>
+          <span class="s-row-sub">Compose boots parallel instances — validate live UI, API, DB; pairs with worktrees</span>
+        </div>
+        <div class="s-row-item">
+          <span class="s-row-label">Langfuse as a <span class="s-row-accent">verification source</span></span>
+          <span class="s-row-sub">Agents read the traces and run tests against datasets to check real behaviour</span>
+        </div>
+        <div class="s-row-item">
+          <span class="s-row-label"><span class="s-row-accent">Cross-model</span> review before every PR</span>
+          <span class="s-row-sub">Claude, Codex and Gemini review the change before a human opens it</span>
+        </div>
+        <div class="s-row-item">
+          <span class="s-row-label">Human author review <span class="s-row-accent">owns the merge</span></span>
+          <span class="s-row-sub">A person stays accountable for what ships</span>
+        </div>
+      </div>
+      <div class="s-callout">Unsupervised building only works because verification is layered and never skipped.</div>
+    </div></div>
+
+    <!-- ━━ 9. CONTENT ROWS — TAKEAWAYS ━━ -->
+    <div class="slide-canvas"><div class="s-content">
+      <div class="s-eyebrow"><div class="s-eyebrow-sq"></div><span class="s-eyebrow-text">If you try one thing</span></div>
+      <div class="s-h1">What you might take from this</div>
+      <div class="s-list-body">
+        <div class="s-row-item">
+          <span class="s-row-label">A short <span class="s-row-accent">shared context</span> baseline</span>
+          <span class="s-row-sub">One small file, injected into every session</span>
+        </div>
+        <div class="s-row-item">
+          <span class="s-row-label">A <span class="s-row-accent">CLAUDE.md</span> in your main repo</span>
+          <span class="s-row-sub">Conventions and commands the agent can read</span>
+        </div>
+        <div class="s-row-item">
+          <span class="s-row-label"><span class="s-row-accent">run / test / lint</span> as one command each</span>
+          <span class="s-row-sub">Give the agent a way to check itself</span>
+        </div>
+        <div class="s-row-item">
+          <span class="s-row-label">An <span class="s-row-accent">agent review</span> step before PRs</span>
+          <span class="s-row-sub">A second set of eyes that never gets tired</span>
+        </div>
+      </div>
+    </div></div>
+
+  </div>
+
+  <div class="controls">
+    <button class="ctrl-btn" id="btn-prev" aria-label="Previous">&#8592;</button>
+    <span class="ctrl-counter" id="counter">1 / 9</span>
+    <button class="ctrl-btn" id="btn-next" aria-label="Next">&#8594;</button>
+  </div>
+</div>
+
+<script>
+  var slides  = Array.from(document.querySelectorAll('.slide-canvas'));
+  var total   = slides.length;
+  var current = 0;
+  var stage   = document.getElementById('stage');
+  var counter = document.getElementById('counter');
+  var btnPrev = document.getElementById('btn-prev');
+  var btnNext = document.getElementById('btn-next');
+
+  function show(n) {
+    slides[current].classList.remove('active');
+    current = Math.max(0, Math.min(total - 1, n));
+    slides[current].classList.add('active');
+    counter.textContent = (current + 1) + ' / ' + total;
+    btnPrev.disabled = current === 0;
+    btnNext.disabled = current === total - 1;
+  }
+
+  function scale() {
+    var vw = window.innerWidth;
+    var vh = window.innerHeight - 60;
+    var s  = Math.min(vw / 800, vh / 450);
+    stage.style.width  = Math.round(800 * s) + 'px';
+    stage.style.height = Math.round(450 * s) + 'px';
+    slides.forEach(function(el) { el.style.transform = 'scale(' + s + ')'; });
+  }
+
+  btnPrev.addEventListener('click', function() { show(current - 1); });
+  btnNext.addEventListener('click', function() { show(current + 1); });
+  document.addEventListener('keydown', function(e) {
+    if (e.key === 'ArrowRight' || e.key === 'ArrowDown' || e.key === ' ') { e.preventDefault(); show(current + 1); }
+    if (e.key === 'ArrowLeft'  || e.key === 'ArrowUp')                    { e.preventDefault(); show(current - 1); }
+  });
+
+  window.addEventListener('resize', scale);
+  scale();
+  show(0);
+</script>
