@@ -1,0 +1,480 @@
+<meta charset="utf-8">
+<title>00 · Workshop Overview — Gen AI Engineering · Cornelsen</title>
+<meta name="description" content="MC slide deck for the Contiamo × Cornelsen Gen AI Engineering workshop, 30 June 2026.">
+<style>
+:root {
+  --night:     #1A1321;
+  --berry:     #7E1C42;
+  --gold:      #C8924C;
+  --parchment: #EDE8DF;
+  --ink:       #1D1422;
+  --chalk:     #F4F1EC;
+  --rule:      #D4CCBC;
+  --muted:     #8A7E72;
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+html, body {
+  width: 100%; height: 100%;
+  background: #0D0A10;
+  overflow: hidden;
+  font-family: Georgia, 'Times New Roman', serif;
+}
+
+.deck {
+  width: 100vw; height: 100vh;
+  display: flex; flex-direction: column;
+  align-items: center; justify-content: center;
+  gap: 14px;
+}
+
+.stage-wrap { position: relative; }
+
+/*
+  .slide-canvas is ONLY a visibility/position wrapper.
+  Layout classes live on child divs to avoid specificity clash with display:none.
+*/
+.slide-canvas {
+  position: absolute; top: 0; left: 0;
+  width: 800px; height: 450px;
+  transform-origin: top left;
+  overflow: hidden;
+  display: none;
+}
+.slide-canvas.active { display: block; }
+
+/* All inner layout elements fill the canvas */
+.s-cover, .s-agenda, .s-div, .s-break {
+  width: 800px; height: 450px;
+}
+
+/* ── Controls ── */
+.controls {
+  display: flex; align-items: center; gap: 12px; flex-shrink: 0;
+}
+.ctrl-btn {
+  background: none;
+  border: 1px solid rgba(244,241,236,0.18);
+  color: rgba(244,241,236,0.55);
+  width: 32px; height: 32px; cursor: pointer;
+  font-size: 14px; display: flex; align-items: center; justify-content: center;
+}
+.ctrl-btn:hover:not(:disabled) { background: rgba(244,241,236,0.08); }
+.ctrl-btn:disabled { opacity: 0.2; cursor: default; }
+.ctrl-counter {
+  font-family: 'SF Mono', 'Menlo', monospace;
+  font-size: 11px; color: rgba(244,241,236,0.3);
+  min-width: 52px; text-align: center;
+  font-variant-numeric: tabular-nums; user-select: none;
+}
+
+/* ── COVER ── */
+.s-cover {
+  display: grid;
+  grid-template-columns: 520px 280px;
+  background: var(--night);
+}
+.s-cover-left {
+  background: var(--night); padding: 40px 50px;
+  display: flex; flex-direction: column; justify-content: space-between;
+}
+.s-cover-right {
+  background: var(--berry);
+  display: flex; align-items: center; justify-content: center;
+}
+.s-wordmark {
+  display: flex; align-items: center; gap: 8px;
+  color: var(--chalk); opacity: 0.6;
+  font-family: system-ui, sans-serif;
+  font-size: 9px; letter-spacing: 0.18em; text-transform: uppercase;
+}
+.s-cover-body { display: flex; flex-direction: column; }
+.s-cover-eyebrow {
+  font-family: system-ui, sans-serif; font-weight: 600;
+  font-size: 9px; letter-spacing: 0.14em; text-transform: uppercase;
+  color: var(--gold); margin-bottom: 14px;
+}
+.s-cover-h1 { font-size: 50px; font-weight: bold; color: var(--chalk); line-height: 1.03; }
+.s-cover-h1-gold { color: var(--gold); }
+.s-cover-sub {
+  font-style: italic; font-size: 15px;
+  color: rgba(244,241,236,0.55); line-height: 1.48; margin-top: 16px;
+}
+.s-cover-footer { display: flex; flex-direction: column; gap: 3px; }
+.s-cover-client { font-size: 12px; font-weight: bold; color: var(--chalk); }
+.s-cover-date {
+  font-size: 10px; color: rgba(244,241,236,0.38);
+  font-family: system-ui, sans-serif; letter-spacing: 0.06em;
+}
+
+/* ── AGENDA ── */
+.s-agenda {
+  background: var(--parchment);
+  padding: 30px 48px 26px;
+  display: flex; flex-direction: column;
+}
+.s-eyebrow { display: flex; align-items: center; gap: 7px; margin-bottom: 10px; }
+.s-eyebrow-sq { width: 9px; height: 9px; background: var(--berry); flex-shrink: 0; }
+.s-eyebrow-text {
+  font-family: system-ui, sans-serif; font-weight: 600;
+  font-size: 9px; letter-spacing: 0.13em; text-transform: uppercase; color: var(--berry);
+}
+.s-h1 { font-size: 32px; font-weight: bold; color: var(--ink); line-height: 1.07; margin-bottom: 16px; }
+.agenda-cols { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; flex: 1; }
+.agenda-col-label {
+  font-family: system-ui, sans-serif; font-weight: 700;
+  font-size: 8px; letter-spacing: 0.14em; text-transform: uppercase;
+  color: var(--berry); padding-bottom: 5px;
+  border-bottom: 1px solid var(--berry); margin-bottom: 4px;
+}
+.ag-row {
+  display: grid; grid-template-columns: 36px 1fr 26px;
+  gap: 6px; align-items: baseline;
+  padding: 4px 0; border-bottom: 1px solid rgba(212,204,188,0.55);
+}
+.ag-row:last-child { border-bottom: none; }
+.ag-row.brk { opacity: 0.42; }
+.ag-time {
+  font-family: 'SF Mono', 'Menlo', monospace;
+  font-size: 9px; color: var(--muted); font-variant-numeric: tabular-nums;
+}
+.ag-name { font-size: 10px; color: var(--ink); line-height: 1.28; }
+.ag-row.brk .ag-name { font-style: italic; }
+.ag-dur { font-family: system-ui, sans-serif; font-size: 8px; color: var(--muted); text-align: right; white-space: nowrap; }
+
+/* ── SESSION DIVIDER ── */
+.s-div {
+  display: grid;
+  grid-template-rows: 290px 160px;
+}
+.s-div-top {
+  background: var(--berry); padding: 0 60px;
+  display: flex; flex-direction: column; justify-content: center;
+}
+.s-div-eyebrow {
+  font-family: system-ui, sans-serif; font-weight: 600;
+  font-size: 9px; letter-spacing: 0.14em; text-transform: uppercase;
+  color: rgba(200,146,76,0.85); margin-bottom: 14px;
+}
+.s-div-title { font-weight: bold; color: white; line-height: 1.06; }
+.s-div-bottom {
+  background: var(--night); padding: 0 60px;
+  display: flex; align-items: center;
+}
+.s-div-meta {
+  font-family: system-ui, sans-serif;
+  font-size: 10px; letter-spacing: 0.06em; text-transform: uppercase;
+  color: rgba(244,241,236,0.28);
+}
+.s-div-meta strong { color: rgba(244,241,236,0.45); font-weight: 600; }
+
+/* ── CONTENT SLIDE ── */
+.s-content { background: var(--parchment); display: flex; flex-direction: column; padding: 0; }
+.s-content-header {
+  background: var(--berry); height: 48px; flex-shrink: 0;
+  padding: 0 28px; display: flex; align-items: center; gap: 14px;
+}
+.s-content-cat {
+  font-family: system-ui, sans-serif; font-weight: 700;
+  font-size: 8px; letter-spacing: 0.16em; text-transform: uppercase; color: var(--gold);
+}
+.s-content-sep { color: rgba(244,241,236,0.3); font-size: 14px; }
+.s-content-name { font-size: 20px; font-weight: bold; color: white; }
+.s-content-body { flex: 1; padding: 14px 28px 0; display: flex; flex-direction: column; gap: 7px; overflow: hidden; }
+.s-row {
+  background: white; border: 1px solid var(--rule);
+  padding: 10px 18px; display: flex; align-items: baseline; gap: 14px;
+}
+.s-row-label { font-size: 13px; color: var(--ink); line-height: 1.35; }
+.s-row-label strong { color: var(--ink); }
+.s-row-label em { color: var(--berry); font-style: normal; font-weight: bold; }
+.s-row-label code {
+  font-family: 'SF Mono','Menlo',monospace; font-size: 11px;
+  background: var(--night); color: var(--gold); padding: 1px 5px;
+}
+.s-row-sub { font-style: italic; font-size: 11px; color: rgba(29,20,34,0.42); margin-left: auto; white-space: nowrap; }
+.s-content-callout {
+  margin-top: auto; padding: 10px 28px 14px;
+  font-size: 15px; font-weight: bold; font-style: italic; color: var(--berry);
+  border-top: 1px solid var(--rule);
+}
+
+/* ── BREAK ── */
+.s-break {
+  background: var(--night);
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+}
+.s-break-eyebrow {
+  font-family: system-ui, sans-serif; font-weight: 600;
+  font-size: 9px; letter-spacing: 0.18em; text-transform: uppercase;
+  color: var(--gold); margin-bottom: 16px;
+}
+.s-break-rule { width: 40px; height: 1px; background: var(--gold); opacity: 0.5; margin-bottom: 20px; }
+.s-break-title { font-size: 52px; font-weight: bold; font-style: italic; color: var(--chalk); line-height: 1; }
+.s-break-dur {
+  font-family: system-ui, sans-serif; font-size: 10px;
+  color: rgba(244,241,236,0.22); margin-top: 20px;
+  letter-spacing: 0.1em; text-transform: uppercase;
+}
+</style>
+
+<div class="deck">
+  <div class="stage-wrap" id="stage">
+
+    <!-- 1 · COVER -->
+    <div class="slide-canvas"><div class="s-cover">
+      <div class="s-cover-left">
+        <div class="s-wordmark">
+          <img src="Contiamo-logo_Outlines-07.svg" width="18" height="18" alt="Contiamo" style="opacity:0.65;vertical-align:middle;">
+          Contiamo × Cornelsen
+        </div>
+        <div class="s-cover-body">
+          <div class="s-cover-eyebrow">Gen AI Engineering Workshop · 30 June 2026 · Berlin</div>
+          <div class="s-cover-h1">From Traces<br><span class="s-cover-h1-gold">to Evals.</span></div>
+          <div class="s-cover-sub">One day to instrument, evaluate, and run experiments — hands-on.</div>
+        </div>
+        <div class="s-cover-footer">
+          <div class="s-cover-client">Cornelsen Engineering</div>
+          <div class="s-cover-date">Contiamo · Leipziger Straße 126, Berlin · 09:30 – 16:30</div>
+        </div>
+      </div>
+      <div class="s-cover-right">
+        <img src="Contiamo-logo_Outlines-07.svg" width="170" height="170" alt="Contiamo" style="opacity:0.85;">
+      </div>
+    </div></div>
+
+    <!-- 2 · AGENDA -->
+    <div class="slide-canvas"><div class="s-agenda">
+      <div class="s-eyebrow"><div class="s-eyebrow-sq"></div><span class="s-eyebrow-text">30 June 2026 · Contiamo · Leipziger Straße 126, Berlin</span></div>
+      <div class="s-h1">Day at a glance</div>
+      <div class="agenda-cols">
+        <div>
+          <div class="agenda-col-label">Morning</div>
+          <div class="ag-row"><span class="ag-time">09:30</span><span class="ag-name">Welcome &amp; Framing</span><span class="ag-dur">15m</span></div>
+          <div class="ag-row"><span class="ag-time">09:45</span><span class="ag-name">AI-Assisted Coding for GenAI Engineering</span><span class="ag-dur">45m</span></div>
+          <div class="ag-row brk"><span class="ag-time">10:30</span><span class="ag-name">Coffee break</span><span class="ag-dur">15m</span></div>
+          <div class="ag-row"><span class="ag-time">10:45</span><span class="ag-name">What Does Success Look Like for Your Product?</span><span class="ag-dur">30m</span></div>
+          <div class="ag-row"><span class="ag-time">11:15</span><span class="ag-name">Langfuse Feature Tour</span><span class="ag-dur">45m</span></div>
+          <div class="ag-row"><span class="ag-time">12:00</span><span class="ag-name">Demo Setup</span><span class="ag-dur">15m</span></div>
+          <div class="ag-row brk"><span class="ag-time">12:15</span><span class="ag-name">Lunch</span><span class="ag-dur">60m</span></div>
+        </div>
+        <div>
+          <div class="agenda-col-label">Afternoon</div>
+          <div class="ag-row"><span class="ag-time">13:15</span><span class="ag-name">What Basic Tracing Looks Like</span><span class="ag-dur">15m</span></div>
+          <div class="ag-row"><span class="ag-time">13:30</span><span class="ag-name">Taking Tracing to Another Level</span><span class="ag-dur">45m</span></div>
+          <div class="ag-row"><span class="ag-time">14:15</span><span class="ag-name">Building Evaluation Datasets from Your Traces</span><span class="ag-dur">45m</span></div>
+          <div class="ag-row brk"><span class="ag-time">15:00</span><span class="ag-name">Coffee break</span><span class="ag-dur">15m</span></div>
+          <div class="ag-row"><span class="ag-time">15:15</span><span class="ag-name">Scoring &amp; Experiments</span><span class="ag-dur">45m</span></div>
+          <div class="ag-row"><span class="ag-time">16:00</span><span class="ag-name">Wrap-up: What Did You Take Away?</span><span class="ag-dur">30m</span></div>
+        </div>
+      </div>
+    </div></div>
+
+    <!-- 3 · Welcome & Framing -->
+    <div class="slide-canvas"><div class="s-div">
+      <div class="s-div-top">
+        <div class="s-div-eyebrow">09:30 · 15 minutes</div>
+        <div class="s-div-title" style="font-size:50px;">Welcome &amp; Framing</div>
+      </div>
+      <div class="s-div-bottom"><div class="s-div-meta"><strong>Format</strong> &nbsp;Intro · logistics · day overview</div></div>
+    </div></div>
+
+    <div class="slide-canvas"><div class="s-content">
+      <div class="s-content-header">
+        <span class="s-content-cat">09:30 · 15 min</span>
+        <span class="s-content-sep">·</span>
+        <span class="s-content-name">Welcome — quick round of introductions</span>
+      </div>
+      <div class="s-content-body">
+        <div class="s-row"><span class="s-row-label"><strong>What you can expect:</strong> hands-on tracing, evaluation, and experiments — all on a shared demo app we extend together</span></div>
+        <div class="s-row"><span class="s-row-label"><strong>Agenda:</strong> Langfuse tour → demo setup → tracing v1 → v2 → evaluation datasets → scoring & experiments</span></div>
+        <div class="s-row"><span class="s-row-label"><strong>The demo:</strong> a RAG app over Sherlock Holmes — simple enough to see every moving part, real enough to instrument properly</span></div>
+        <div class="s-row"><span class="s-row-label"><strong>Format:</strong> concept slides → hands-on labs alternating — you'll leave with code you wrote yourself</span></div>
+        <div class="s-row"><span class="s-row-label"><strong>Quick round:</strong> who are you, what AI product are you working on, what's one thing you want to take away?</span></div>
+      </div>
+      <div class="s-content-callout">No prior Langfuse experience needed. Bring curiosity and your product context.</div>
+    </div></div>
+
+    <!-- 4 · AI-Assisted Coding -->
+    <div class="slide-canvas"><div class="s-div">
+      <div class="s-div-top">
+        <div class="s-div-eyebrow">09:45 · 45 minutes</div>
+        <div class="s-div-title" style="font-size:42px;">AI-Assisted Coding<br>for GenAI Engineering</div>
+      </div>
+      <div class="s-div-bottom"><div class="s-div-meta"><strong>Format</strong> &nbsp;Live demo · Claude Code · /langfuse skill · /triple-review</div></div>
+    </div></div>
+
+    <!-- 5 · COFFEE BREAK -->
+    <div class="slide-canvas"><div class="s-break">
+      <div class="s-break-eyebrow">10:30</div>
+      <div class="s-break-rule"></div>
+      <div class="s-break-title">Coffee Break</div>
+      <div class="s-break-dur">Back at 10:45</div>
+    </div></div>
+
+    <!-- 6 · What Does Success Look Like -->
+    <div class="slide-canvas"><div class="s-div">
+      <div class="s-div-top">
+        <div class="s-div-eyebrow">10:45 · 30 minutes</div>
+        <div class="s-div-title" style="font-size:40px;">What Does Success<br>Look Like for Your Product?</div>
+      </div>
+      <div class="s-div-bottom"><div class="s-div-meta"><strong>Format</strong> &nbsp;Facilitated discussion · each team writes 2–3 quality criteria</div></div>
+    </div></div>
+
+    <div class="slide-canvas"><div class="s-content">
+      <div class="s-content-header">
+        <span class="s-content-cat">10:45 · 30 min · Discussion</span>
+        <span class="s-content-sep">·</span>
+        <span class="s-content-name">How do we know the AI is getting better?</span>
+      </div>
+      <div class="s-content-body">
+        <div class="s-row"><span class="s-row-label"><strong>The core question:</strong> what would need to be measurably true for you to say "we improved the AI this sprint"?</span></div>
+        <div class="s-row"><span class="s-row-label"><em>Signal, not feeling</em> — a metric you can track over time: faithfulness score, error rate, TTFT, turns to resolution</span></div>
+        <div class="s-row"><span class="s-row-label"><em>Catching regressions</em> — how do you know a prompt change didn't silently make things worse?</span></div>
+        <div class="s-row"><span class="s-row-label"><em>Comparing variants</em> — model A vs. model B, prompt v1 vs. v2: what's your decision criterion?</span></div>
+        <div class="s-row"><span class="s-row-label"><strong>Exercise:</strong> each team names 1–2 quality signals for their product. What would you put on a dashboard?</span></div>
+      </div>
+      <div class="s-content-callout">These signals become your dataset rubric and your experiment gate later today.</div>
+    </div></div>
+
+    <!-- 7 · Langfuse Feature Tour -->
+    <div class="slide-canvas"><div class="s-div">
+      <div class="s-div-top">
+        <div class="s-div-eyebrow">11:15 · 45 minutes</div>
+        <div class="s-div-title" style="font-size:50px;">Langfuse Feature Tour</div>
+      </div>
+      <div class="s-div-bottom"><div class="s-div-meta"><strong>Format</strong> &nbsp;Instructor-led concept · Traces, Datasets, Scores, Experiments &nbsp;·&nbsp; <strong>→</strong> 01-langfuse-tour.html</div></div>
+    </div></div>
+
+    <!-- 8 · Demo Setup -->
+    <div class="slide-canvas"><div class="s-div">
+      <div class="s-div-top">
+        <div class="s-div-eyebrow">12:00 · 15 minutes</div>
+        <div class="s-div-title" style="font-size:56px;">Demo Setup</div>
+      </div>
+      <div class="s-div-bottom"><div class="s-div-meta"><strong>Format</strong> &nbsp;Run <code style="font-family:monospace;font-size:10px;">task run</code> · verify Langfuse connectivity before lunch</div></div>
+    </div></div>
+
+    <div class="slide-canvas"><div class="s-content">
+      <div class="s-content-header">
+        <span class="s-content-cat">12:00 · 15 min · Hands-on</span>
+        <span class="s-content-sep">·</span>
+        <span class="s-content-name">Get the demo running</span>
+      </div>
+      <div class="s-content-body">
+        <div class="s-row"><span class="s-row-label"><strong>Repo:</strong> <em>github.com/contiamo/langfuse-demo</em> → branch <code>v1-baseline-tracing</code></span><span class="s-row-sub">VPN required</span></div>
+        <div class="s-row"><span class="s-row-label"><strong>API key:</strong> OpenAI key — bring your own</span><span class="s-row-sub">via VPN if needed</span></div>
+        <div class="s-row"><span class="s-row-label"><strong>Langfuse credentials:</strong> public key + secret key — provided by us today</span></div>
+        <div class="s-row"><span class="s-row-label"><code>cp .env.example .env</code> — fill in keys, then <code>task run</code> → <code>task migrate</code> → <code>task ingest</code></span><span class="s-row-sub">~2 min</span></div>
+        <div class="s-row"><span class="s-row-label">Open <em>http://localhost:7932</em> — ask a question, then check <em>Langfuse → Tracing</em></span><span class="s-row-sub">verify before lunch</span></div>
+      </div>
+    </div></div>
+
+    <!-- 9 · LUNCH -->
+    <div class="slide-canvas"><div class="s-break">
+      <div class="s-break-eyebrow">12:15</div>
+      <div class="s-break-rule"></div>
+      <div class="s-break-title">Lunch</div>
+      <div class="s-break-dur">Back at 13:15 · 60 minutes</div>
+    </div></div>
+
+    <!-- 10 · What Basic Tracing Looks Like -->
+    <div class="slide-canvas"><div class="s-div">
+      <div class="s-div-top">
+        <div class="s-div-eyebrow">13:15 · 15 minutes</div>
+        <div class="s-div-title" style="font-size:46px;">What Basic Tracing<br>Looks Like</div>
+      </div>
+      <div class="s-div-bottom"><div class="s-div-meta"><strong>Format</strong> &nbsp;Concept · v1 state — what you get with zero instrumentation &nbsp;·&nbsp; <strong>→</strong> 02-tracing-v1.html</div></div>
+    </div></div>
+
+    <!-- 11 · Taking Tracing to Another Level -->
+    <div class="slide-canvas"><div class="s-div">
+      <div class="s-div-top">
+        <div class="s-div-eyebrow">13:30 · 45 minutes</div>
+        <div class="s-div-title" style="font-size:46px;">Taking Tracing<br>to Another Level</div>
+      </div>
+      <div class="s-div-bottom"><div class="s-div-meta"><strong>Format</strong> &nbsp;Hands-on · v1 → v2 · spans, sessions, TTFT &nbsp;·&nbsp; <strong>→</strong> 03-tracing-v2.html</div></div>
+    </div></div>
+
+    <!-- 12 · Evaluation Datasets + Scoring & Experiments (merged, 90 min) -->
+    <div class="slide-canvas"><div class="s-div">
+      <div class="s-div-top">
+        <div class="s-div-eyebrow">14:15 · 90 minutes (incl. coffee break at 15:00)</div>
+        <div class="s-div-title" style="font-size:37px;">Evaluation Datasets,<br>Scoring &amp; Experiments</div>
+      </div>
+      <div class="s-div-bottom"><div class="s-div-meta"><strong>Format</strong> &nbsp;Hands-on · dataset from traces · LLM-as-Judge · model swap experiment &nbsp;·&nbsp; <strong>→</strong> 04-evaluation-datasets.html</div></div>
+    </div></div>
+
+    <!-- 15 · Wrap-up -->
+    <div class="slide-canvas"><div class="s-div">
+      <div class="s-div-top">
+        <div class="s-div-eyebrow">16:00 · 30 minutes</div>
+        <div class="s-div-title" style="font-size:46px;">Wrap-up: What Did<br>You Take Away?</div>
+      </div>
+      <div class="s-div-bottom"><div class="s-div-meta"><strong>Format</strong> &nbsp;Open discussion · reflections · what would you do differently</div></div>
+    </div></div>
+
+    <div class="slide-canvas"><div class="s-content">
+      <div class="s-content-header">
+        <span class="s-content-cat">16:00 · 30 min · Discussion</span>
+        <span class="s-content-sep">·</span>
+        <span class="s-content-name">What did you take away?</span>
+      </div>
+      <div class="s-content-body">
+        <div class="s-row"><span class="s-row-label">The loop: <em>trace</em> → <em>dataset</em> → <em>score</em> → <em>experiment</em> → ship with a regression gate</span></div>
+        <div class="s-row"><span class="s-row-label"><strong>Cosmo:</strong> what's the first eval you'll add this week? What's your blocker?</span></div>
+        <div class="s-row"><span class="s-row-label"><strong>AI Chat:</strong> did retrieval pull the right page? Did the answer stay faithful to the source?</span></div>
+        <div class="s-row"><span class="s-row-label">Multi-step systems: per-step scores vs. end-to-end score — which matters for your rollout decision?</span></div>
+        <div class="s-row"><span class="s-row-label"><strong>Open floor:</strong> what's the first eval you'd add to your product? What's the biggest obstacle?</span></div>
+      </div>
+      <div class="s-content-callout">The demo repo stays public — take the patterns, adapt them to your stack.</div>
+    </div></div>
+
+  </div><!-- /stage -->
+
+  <div class="controls">
+    <button class="ctrl-btn" id="btn-prev" aria-label="Previous">&#8592;</button>
+    <span class="ctrl-counter" id="counter">1 / 17</span>
+    <button class="ctrl-btn" id="btn-next" aria-label="Next">&#8594;</button>
+  </div>
+</div>
+
+<script>
+  var slides  = Array.from(document.querySelectorAll('.slide-canvas'));
+  var total   = slides.length;
+  var current = 0;
+  var stage   = document.getElementById('stage');
+  var counter = document.getElementById('counter');
+  var btnPrev = document.getElementById('btn-prev');
+  var btnNext = document.getElementById('btn-next');
+
+  function show(n) {
+    slides[current].classList.remove('active');
+    current = Math.max(0, Math.min(total - 1, n));
+    slides[current].classList.add('active');
+    counter.textContent = (current + 1) + ' / ' + total;
+    btnPrev.disabled = current === 0;
+    btnNext.disabled = current === total - 1;
+  }
+
+  function scale() {
+    var vw = window.innerWidth;
+    var vh = window.innerHeight - 60;
+    var s  = Math.min(vw / 800, vh / 450);
+    stage.style.width  = Math.round(800 * s) + 'px';
+    stage.style.height = Math.round(450 * s) + 'px';
+    slides.forEach(function(el) { el.style.transform = 'scale(' + s + ')'; });
+  }
+
+  btnPrev.addEventListener('click', function() { show(current - 1); });
+  btnNext.addEventListener('click', function() { show(current + 1); });
+  document.addEventListener('keydown', function(e) {
+    if (e.key === 'ArrowRight' || e.key === 'ArrowDown' || e.key === ' ') { e.preventDefault(); show(current + 1); }
+    if (e.key === 'ArrowLeft'  || e.key === 'ArrowUp')                    { e.preventDefault(); show(current - 1); }
+  });
+
+  window.addEventListener('resize', scale);
+  scale();
+  show(0);
+</script>
