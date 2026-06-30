@@ -9,9 +9,10 @@ RUN uv sync --no-dev --no-install-project
 
 COPY src/ src/
 COPY frontend/ frontend/
-RUN uv sync --no-dev
+COPY entrypoint.sh /entrypoint.sh
+RUN uv sync --no-dev && chmod +x /entrypoint.sh
 
 ENV PATH="/app/.venv/bin:$PATH"
 
 EXPOSE 7932
-CMD ["uvicorn", "rag.app:app", "--host", "0.0.0.0", "--port", "7932"]
+CMD ["/entrypoint.sh"]
