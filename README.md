@@ -34,38 +34,24 @@ Ask questions about a Sherlock Holmes corpus; every component is traced to Langf
 
 ## Setup
 
-### 1. Prerequisites
-
-- Docker + Docker Compose
-- [Task](https://taskfile.dev) (`brew install go-task`) or [other installation method](https://taskfile.dev/docs/installation)
-- [UV](https://docs.astral.sh/uv/) (`brew install uv`) or [other installation method](https://docs.astral.sh/uv/#installation)
-- An OpenAI API key (or any litellm-compatible provider)
-
-### 2. Configure
+### Option A — one command _(only needs Docker)_
 
 ```bash
-cp .env.example .env
-# Fill in:
-#   OPENAI_API_KEY=sk-...
-#   LANGFUSE_PUBLIC_KEY=...
-#   LANGFUSE_SECRET_KEY=...
+./start.sh
 ```
 
-### 3. Start and ingest
+Creates `.env` on first run and prompts for API keys. On subsequent runs: builds the image, migrates the DB, downloads the demo dataset, and ingests it automatically.
+
+Open **http://localhost:7932** when it says "Ready!".
+
+### Option B — with Task + UV
+
+**Prerequisites:** Docker · [Task](https://taskfile.dev/docs/installation) · [UV](https://docs.astral.sh/uv/#installation) · OpenAI API key
 
 ```bash
-task run        # build image + start DB and app
-
-task migrate    # create DB schema (first time only)
-
-# Download the demo dataset (Sherlock Holmes, public domain)
-curl -o data/a-study-in-scarlet.txt \
-  https://www.gutenberg.org/files/244/244-0.txt
-
-curl -o data/adventures-of-sherlock-holmes.txt \
-  https://www.gutenberg.org/files/1661/1661-0.txt
-
-task ingest     # embed and store — takes ~2 min
+cp .env.example .env   # fill in OPENAI_API_KEY + Langfuse keys
+task run               # build image + start DB and app (auto-migrates)
+task setup             # download demo data + ingest (~2 min, run once)
 ```
 
 Open **http://localhost:7932** and start asking questions.
@@ -74,10 +60,12 @@ Open **http://localhost:7932** and start asking questions.
 
 | Command | What it does |
 |---|---|
-| `task run` | Build image and start everything in Docker |
+| `./start.sh` | Full setup + start (Docker only, no Task/UV needed) |
+| `task run` | Build image and start everything in Docker (auto-migrates) |
+| `task setup` | Download demo data + ingest (run once after `task run`) |
 | `task stop` | Stop all containers |
 | `task dev` | Run locally with hot-reload (needs DB running) |
-| `task migrate` | Apply DB migrations (first time only) |
+| `task migrate` | Apply DB migrations manually |
 | `task ingest` | Embed and store documents from `data/` |
 | `task test` | Run unit tests (no API key needed) |
 | `task lint` | Ruff check + format |

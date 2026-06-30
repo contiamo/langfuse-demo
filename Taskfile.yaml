@@ -16,6 +16,13 @@ tasks:
     cmds:
       - docker compose down
 
+  setup:
+    desc: First-time setup — downloads demo data and ingests it (run once after task run)
+    cmds:
+      - curl -sL -o data/a-study-in-scarlet.txt https://www.gutenberg.org/files/244/244-0.txt
+      - curl -sL -o data/adventures-of-sherlock-holmes.txt https://www.gutenberg.org/files/1661/1661-0.txt
+      - docker compose exec app rag-ingest --source-dir data/
+
   migrate:
     desc: Run database migrations (requires running DB)
     cmds:
