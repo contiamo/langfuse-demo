@@ -28,7 +28,8 @@ The workshop progresses from this baseline (v1) toward structured, linked traces
 ### 1. Prerequisites
 
 - Docker + Docker Compose
-- [Task](https://taskfile.dev) (`brew install go-task`)
+- [Task](https://taskfile.dev) (`brew install go-task`) or [other installation method](https://taskfile.dev/docs/installation)
+- [UV](https://docs.astral.sh/uv/) (`brew install uv`) or [other installation method](https://docs.astral.sh/uv/#installation)
 - An OpenAI API key (or any litellm-compatible provider)
 
 ### 2. Configure
