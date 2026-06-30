@@ -57,7 +57,9 @@ _09:30 · 15 min · Intro_
 
 # AI-Assisted Coding for GenAI Engineering
 
-_09:45 · 45 min · Live demo · Claude Code_
+_09:45 · 45 min · Field report_
+
+→ **Breakout deck:** `05-ai-assisted-coding`
 
 ---
 
