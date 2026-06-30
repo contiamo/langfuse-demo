@@ -1,5 +1,8 @@
 """Apply SQL migrations in order."""
+
 import asyncio
+import selectors
+import sys
 from pathlib import Path
 
 import psycopg
@@ -17,8 +20,15 @@ async def run_migrations(database_url: str) -> None:
 
 def main() -> None:
     from rag.config import get_settings
+
     settings = get_settings()
-    asyncio.run(run_migrations(settings.database_url))
+    if sys.platform == "win32":
+        asyncio.run(
+            run_migrations(settings.database_url),
+            loop_factory=lambda: asyncio.SelectorEventLoop(selectors.SelectSelector()),
+        )
+    else:
+        asyncio.run(run_migrations(settings.database_url))
 
 
 if __name__ == "__main__":
