@@ -37,9 +37,9 @@ Ask questions about a Sherlock Holmes corpus; every component is traced to Langf
 ### 1. Prerequisites
 
 - Docker + Docker Compose
-- [Task](https://taskfile.dev) (`brew install go-task`)
+- [Task](https://taskfile.dev) (`brew install go-task`) or [other installation method](https://taskfile.dev/docs/installation)
+- [UV](https://docs.astral.sh/uv/) (`brew install uv`) or [other installation method](https://docs.astral.sh/uv/#installation)
 - An OpenAI API key (or any litellm-compatible provider)
-- A Langfuse account (free at [cloud.langfuse.com](https://cloud.langfuse.com))
 
 ### 2. Configure
 
