@@ -17,6 +17,7 @@ from rag.retrieval.repository import ChunkRepository
 
 class ChatRequest(BaseModel):
     question: str
+    session_id: str | None = None  # received but not yet used — wired up in v2
 
 
 @asynccontextmanager
