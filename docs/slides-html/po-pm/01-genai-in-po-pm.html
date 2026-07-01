@@ -1,0 +1,400 @@
+<meta charset="utf-8">
+<title>01 · GenAI in PO/PM &amp; Interfacing with GenAI-Enabled Engineers — Gen AI for Product · Cornelsen</title>
+<meta name="description" content="45-minute field report: how the PO/PM role shifts when engineering is agent-driven, and how to work across the handoff — context, workflow, verification.">
+<style>
+:root {
+  --night:     #1A1321;
+  --berry:     #7E1C42;
+  --gold:      #C8924C;
+  --parchment: #EDE8DF;
+  --ink:       #1D1422;
+  --chalk:     #F4F1EC;
+  --rule:      #D4CCBC;
+  --muted:     #8A7E72;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+html, body { width: 100%; height: 100%; background: #0D0A10; overflow: hidden; font-family: Georgia, 'Times New Roman', serif; }
+
+.deck { width: 100vw; height: 100vh; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 12px; }
+.stage-wrap { position: relative; }
+.slide-canvas { position: absolute; top: 0; left: 0; width: 800px; height: 450px; transform-origin: top left; overflow: hidden; display: none; }
+.slide-canvas.active { display: block; }
+
+.controls { display: flex; align-items: center; gap: 12px; flex-shrink: 0; }
+.ctrl-btn { background: none; border: 1px solid rgba(244,241,236,0.18); color: rgba(244,241,236,0.55); width: 32px; height: 32px; cursor: pointer; font-size: 14px; display: flex; align-items: center; justify-content: center; }
+.ctrl-btn:hover:not(:disabled) { background: rgba(244,241,236,0.08); }
+.ctrl-btn:disabled { opacity: 0.2; cursor: default; }
+.ctrl-counter { font-family: 'SF Mono','Menlo',monospace; font-size: 11px; color: rgba(244,241,236,0.3); min-width: 52px; text-align: center; font-variant-numeric: tabular-nums; user-select: none; }
+
+/* ── COVER ── */
+.s-cover { width: 800px; height: 450px; display: grid; grid-template-columns: 520px 280px; }
+.s-cover-left { background: var(--night); padding: 40px 48px; display: flex; flex-direction: column; justify-content: space-between; }
+.s-cover-right { background: var(--berry); display: flex; align-items: center; justify-content: center; }
+.s-wordmark { display: flex; align-items: center; gap: 8px; color: var(--chalk); font-family: system-ui,sans-serif; font-size: 9px; letter-spacing: 0.18em; text-transform: uppercase; opacity: 0.7; }
+.s-cover-body { display: flex; flex-direction: column; }
+.s-cover-eyebrow { font-family: system-ui,sans-serif; font-size: 9px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--gold); margin-bottom: 12px; font-weight: 600; }
+.s-cover-h1 { font-size: 56px; font-weight: bold; color: var(--chalk); line-height: 1.02; }
+.s-cover-h1-gold { color: var(--gold); }
+.s-cover-sub { font-style: italic; font-size: 16px; color: rgba(244,241,236,0.65); line-height: 1.45; margin-top: 16px; max-width: 400px; }
+.s-cover-footer { display: flex; flex-direction: column; gap: 2px; }
+.s-cover-speaker { font-size: 12px; font-weight: bold; color: var(--chalk); }
+.s-cover-role { font-size: 10px; color: rgba(244,241,236,0.4); }
+
+/* ── SECTION DIVIDER ── */
+.s-div { width: 800px; height: 450px; display: grid; grid-template-rows: 290px 160px; }
+.s-div-top { background: var(--berry); padding: 0 60px; display: flex; flex-direction: column; justify-content: center; }
+.s-div-eyebrow { font-family: system-ui,sans-serif; font-weight: 600; font-size: 9px; letter-spacing: 0.14em; text-transform: uppercase; color: rgba(244,241,236,0.7); margin-bottom: 16px; }
+.s-div-title { font-weight: bold; color: white; line-height: 1.04; font-size: 60px; }
+.s-div-bottom { background: var(--night); padding: 0 60px; display: flex; align-items: center; }
+.s-div-meta { font-family: system-ui,sans-serif; font-size: 10px; letter-spacing: 0.06em; text-transform: uppercase; color: rgba(244,241,236,0.28); }
+.s-div-meta strong { color: rgba(200,146,76,0.85); font-weight: 600; }
+
+/* ── CONTENT (shared) ── */
+.s-content { width: 800px; height: 450px; background: var(--parchment); padding: 32px 48px 26px; display: flex; flex-direction: column; }
+.s-eyebrow { display: flex; align-items: center; gap: 7px; margin-bottom: 11px; }
+.s-eyebrow-sq { width: 9px; height: 9px; background: var(--berry); flex-shrink: 0; }
+.s-eyebrow-text { font-family: system-ui,sans-serif; font-weight: 600; font-size: 9px; letter-spacing: 0.13em; text-transform: uppercase; color: var(--berry); }
+.s-h1 { font-size: 31px; font-weight: bold; color: var(--ink); line-height: 1.07; margin-bottom: 18px; }
+
+/* ── CONTENT — CARDS ── */
+.s-card-row { display: grid; grid-template-columns: repeat(5, 1fr); gap: 9px; flex: 1; }
+.s-card { background: white; border-top: 3px solid var(--berry); padding: 13px 13px; display: flex; flex-direction: column; gap: 7px; }
+.s-card.active { background: var(--berry); border-top-color: var(--gold); }
+.s-card-year { font-size: 25px; font-weight: bold; color: var(--berry); line-height: 1; }
+.s-card.active .s-card-year { color: var(--gold); }
+.s-card-title { font-size: 12.5px; font-weight: bold; color: var(--ink); line-height: 1.2; }
+.s-card.active .s-card-title { color: white; }
+.s-card hr { border: none; border-top: 1px solid rgba(0,0,0,0.1); }
+.s-card.active hr { border-top-color: rgba(255,255,255,0.2); }
+.s-card-sub { font-family: system-ui,sans-serif; font-size: 9px; font-weight: 700; color: var(--gold); letter-spacing: 0.02em; }
+.s-card-bullets { font-size: 9.5px; color: var(--ink); list-style: none; display: flex; flex-direction: column; gap: 3px; line-height: 1.3; }
+.s-card.active .s-card-bullets { color: rgba(244,241,236,0.9); }
+.s-card-bullets li::before { content: "• "; }
+.s-card-bullets .dim { color: rgba(29,20,34,0.4); font-style: italic; }
+.s-card.active .s-card-bullets .dim { color: rgba(244,241,236,0.4); }
+
+/* ── CONTENT — ROWS ── */
+.s-list-body { display: flex; flex-direction: column; gap: 8px; flex: 1; }
+.s-row-item { background: white; border: 1px solid rgba(212,204,188,0.8); padding: 12px 18px; display: flex; align-items: center; gap: 20px; }
+.s-row-label { font-size: 14px; font-weight: bold; color: var(--ink); }
+.s-row-accent { color: var(--berry); }
+.s-row-sub { font-style: italic; font-size: 12.5px; color: rgba(29,20,34,0.45); margin-left: auto; text-align: right; }
+.s-callout { font-size: 17px; font-weight: bold; color: var(--berry); font-style: italic; margin-top: 12px; }
+
+/* ── STATEMENT ── */
+.s-statement { width: 800px; height: 450px; background: var(--parchment); padding: 56px 64px; display: flex; flex-direction: column; justify-content: center; }
+.s-statement-h1 { font-size: 60px; font-weight: bold; color: var(--ink); line-height: 1.03; margin-bottom: 24px; }
+.s-statement-sub { font-style: italic; font-size: 20px; color: rgba(29,20,34,0.5); line-height: 1.5; max-width: 600px; }
+</style>
+
+<div class="deck">
+  <div class="stage-wrap" id="stage">
+
+    <!-- ━━ 1. COVER ━━ -->
+    <div class="slide-canvas"><div class="s-cover">
+      <div class="s-cover-left">
+        <div class="s-wordmark">
+          <svg width="14" height="14" viewBox="0 0 100 100" fill="none" aria-hidden="true">
+            <path d="M74 17 A35 35 0 1 0 74 83" stroke="currentColor" stroke-width="10" stroke-linecap="round"/>
+            <path d="M67 30 A22 22 0 1 0 67 70" stroke="currentColor" stroke-width="9" stroke-linecap="round"/>
+            <path d="M60 42 A10 10 0 1 0 60 58" stroke="currentColor" stroke-width="8" stroke-linecap="round"/>
+          </svg>
+          Contiamo
+        </div>
+        <div class="s-cover-body">
+          <div class="s-cover-eyebrow">Gen AI for Product · Cornelsen · Berlin</div>
+          <div class="s-cover-h1">How We Ship<br><span class="s-cover-h1-gold">With AI.</span></div>
+          <div class="s-cover-sub">The product side of building with coding agents — how the PO/PM role shifts, and how to work with GenAI-enabled engineers.</div>
+        </div>
+        <div class="s-cover-footer">
+          <div class="s-cover-speaker">Contiamo</div>
+          <div class="s-cover-role">09:45 · Leipziger Straße 126, Berlin</div>
+        </div>
+      </div>
+      <div class="s-cover-right">
+        <svg width="140" height="140" viewBox="0 0 100 100" fill="none" aria-hidden="true">
+          <path d="M74 17 A35 35 0 1 0 74 83" stroke="rgba(244,241,236,0.85)" stroke-width="8" stroke-linecap="round"/>
+          <path d="M67 30 A22 22 0 1 0 67 70" stroke="rgba(244,241,236,0.85)" stroke-width="7" stroke-linecap="round"/>
+          <path d="M60 42 A10 10 0 1 0 60 58" stroke="rgba(244,241,236,0.85)" stroke-width="6" stroke-linecap="round"/>
+        </svg>
+      </div>
+    </div></div>
+
+    <!-- ━━ 2. STATEMENT — FRAMING ━━ -->
+    <div class="slide-canvas"><div class="s-statement">
+      <div class="s-statement-h1">A field report from<br>the other side of the handoff.</div>
+      <div class="s-statement-sub">You brief the engineers; they build with agents. When implementation gets cheap, your job changes more than theirs — and this is how, and what it asks of you.</div>
+    </div></div>
+
+    <!-- ━━ 3. DIVIDER — CONTEXT ━━ -->
+    <div class="slide-canvas"><div class="s-div">
+      <div class="s-div-top">
+        <div class="s-div-eyebrow">Part one of three</div>
+        <div class="s-div-title">Context</div>
+      </div>
+      <div class="s-div-bottom"><div class="s-div-meta"><strong>The principle</strong> &nbsp;What you feed the machine before anyone writes code</div></div>
+    </div></div>
+
+    <!-- ━━ 4. CONTENT CARDS — WHAT YOU FEED THE MACHINE ━━ -->
+    <div class="slide-canvas"><div class="s-content">
+      <div class="s-eyebrow"><div class="s-eyebrow-sq"></div><span class="s-eyebrow-text">Part one · Context</span></div>
+      <div class="s-h1">Your written artifacts are now executable</div>
+      <div class="s-card-row">
+        <div class="s-card active">
+          <div class="s-card-year">Spec</div>
+          <div class="s-card-title">The brief agents read</div>
+          <hr>
+          <div class="s-card-sub">PRD / ticket</div>
+          <ul class="s-card-bullets">
+            <li>Vague in → assumptions out</li>
+            <li>Precise acceptance criteria</li>
+            <li class="dim">Agents fill every gap you leave</li>
+          </ul>
+        </div>
+        <div class="s-card">
+          <div class="s-card-year">Rubric</div>
+          <div class="s-card-title">What "good" means</div>
+          <hr>
+          <div class="s-card-sub">Score dimensions</div>
+          <ul class="s-card-bullets">
+            <li>Faithfulness, tone, safety</li>
+            <li>Durable, not a one-off QA</li>
+            <li class="dim">Your definition of done</li>
+          </ul>
+        </div>
+        <div class="s-card">
+          <div class="s-card-year">Data</div>
+          <div class="s-card-title">Ground truth</div>
+          <hr>
+          <div class="s-card-sub">Golden dataset</div>
+          <ul class="s-card-bullets">
+            <li>Real failures you curated</li>
+            <li>Expected outputs</li>
+            <li class="dim">Reused every experiment</li>
+          </ul>
+        </div>
+        <div class="s-card">
+          <div class="s-card-year">Voice</div>
+          <div class="s-card-title">House rules</div>
+          <hr>
+          <div class="s-card-sub">Glossary &amp; tone</div>
+          <ul class="s-card-bullets">
+            <li>Domain terms, personas</li>
+            <li>Non-goals, guardrails</li>
+            <li class="dim">A product CLAUDE.md</li>
+          </ul>
+        </div>
+        <div class="s-card">
+          <div class="s-card-year">Live</div>
+          <div class="s-card-title">Where work lives</div>
+          <hr>
+          <div class="s-card-sub">Connected systems</div>
+          <ul class="s-card-bullets">
+            <li>PRDs → Notion</li>
+            <li>Decisions → Slack</li>
+            <li class="dim">Agents can read them</li>
+          </ul>
+        </div>
+      </div>
+    </div></div>
+
+    <!-- ━━ 5. DIVIDER — WORKFLOW ━━ -->
+    <div class="slide-canvas"><div class="s-div">
+      <div class="s-div-top">
+        <div class="s-div-eyebrow">Part two of three</div>
+        <div class="s-div-title">Workflow</div>
+      </div>
+      <div class="s-div-bottom"><div class="s-div-meta"><strong>The principle</strong> &nbsp;Decide the spec, then delegate the build</div></div>
+    </div></div>
+
+    <!-- ━━ 6. CONTENT ROWS — WORKFLOW ━━ -->
+    <div class="slide-canvas"><div class="s-content">
+      <div class="s-eyebrow"><div class="s-eyebrow-sq"></div><span class="s-eyebrow-text">Part two · Workflow</span></div>
+      <div class="s-h1">Decide the spec. Delegate the build.</div>
+      <div class="s-list-body">
+        <div class="s-row-item">
+          <span class="s-row-label">Judgment moved up to <span class="s-row-accent">problem definition</span></span>
+          <span class="s-row-sub">When code is cheap, knowing what's worth building is the bottleneck</span>
+        </div>
+        <div class="s-row-item">
+          <span class="s-row-label">Review <span class="s-row-accent">designs</span>, not diffs</span>
+          <span class="s-row-sub">The discussion lives at the design-doc level, not the ticket</span>
+        </div>
+        <div class="s-row-item">
+          <span class="s-row-label"><span class="s-row-accent">Eval-first</span> specs</span>
+          <span class="s-row-sub">A feature ships with its dataset + rubric + threshold — that is the acceptance criteria</span>
+        </div>
+        <div class="s-row-item">
+          <span class="s-row-label">Cheap prototypes change <span class="s-row-accent">discovery</span></span>
+          <span class="s-row-sub">"Build three variants" is a Tuesday now — use it to explore, not just deliver</span>
+        </div>
+        <div class="s-row-item">
+          <span class="s-row-label">Use AI for <span class="s-row-accent">your own</span> work</span>
+          <span class="s-row-sub">Synthesize feedback, draft rubrics, generate edge cases, first-draft PRDs</span>
+        </div>
+      </div>
+      <div class="s-callout">The expensive judgement moved up to the spec — that's where your attention goes.</div>
+    </div></div>
+
+    <!-- ━━ 7. DIVIDER — VERIFICATION ━━ -->
+    <div class="slide-canvas"><div class="s-div">
+      <div class="s-div-top">
+        <div class="s-div-eyebrow">Part three of three</div>
+        <div class="s-div-title">Verification</div>
+      </div>
+      <div class="s-div-bottom"><div class="s-div-meta"><strong>The principle</strong> &nbsp;You own the gate</div></div>
+    </div></div>
+
+    <!-- ━━ 8. CONTENT ROWS — VERIFICATION ━━ -->
+    <div class="slide-canvas"><div class="s-content">
+      <div class="s-eyebrow"><div class="s-eyebrow-sq"></div><span class="s-eyebrow-text">Part three · Verification</span></div>
+      <div class="s-h1">The demo is not the deliverable</div>
+      <div class="s-list-body">
+        <div class="s-row-item">
+          <span class="s-row-label">The threshold is a <span class="s-row-accent">product decision</span></span>
+          <span class="s-row-sub">"Within 5% faithfulness → ship the cheaper model" is your call, not an engineering detail</span>
+        </div>
+        <div class="s-row-item">
+          <span class="s-row-label">Traces &amp; evals are the <span class="s-row-accent">shared language</span></span>
+          <span class="s-row-sub">Settle quality disputes over a session replay or a score, not opinions</span>
+        </div>
+        <div class="s-row-item">
+          <span class="s-row-label">"<span class="s-row-accent">Show me the eval run</span>"</span>
+          <span class="s-row-sub">The new acceptance ritual — insist on it before you call it done</span>
+        </div>
+        <div class="s-row-item">
+          <span class="s-row-label">Accountability <span class="s-row-accent">stays with a person</span></span>
+          <span class="s-row-sub">For AI features, that person is often you</span>
+        </div>
+      </div>
+      <div class="s-callout">You can't ship what you can't measure — so owning the measure is owning the product.</div>
+    </div></div>
+
+    <!-- ━━ 9. CONTENT ROWS — THE TWO-WAY CONTRACT ━━ -->
+    <div class="slide-canvas"><div class="s-content">
+      <div class="s-eyebrow"><div class="s-eyebrow-sq"></div><span class="s-eyebrow-text">The interface</span></div>
+      <div class="s-h1">The new contract, both ways</div>
+      <div class="s-list-body">
+        <div class="s-row-item">
+          <span class="s-row-label"><span class="s-row-accent">You bring</span> — success criteria</span>
+          <span class="s-row-sub">A rubric + dataset + threshold, not just a user story</span>
+        </div>
+        <div class="s-row-item">
+          <span class="s-row-label"><span class="s-row-accent">You bring</span> — faster decisions</span>
+          <span class="s-row-sub">Iteration got cheap; the bottleneck is now your call</span>
+        </div>
+        <div class="s-row-item">
+          <span class="s-row-label"><span class="s-row-accent">You bring</span> — design-level engagement</span>
+          <span class="s-row-sub">Review the approach and own the quality gate</span>
+        </div>
+        <div class="s-row-item">
+          <span class="s-row-label"><span class="s-row-accent">You get</span> — cheap prototypes &amp; variants</span>
+          <span class="s-row-sub">Three options to compare, not one to accept</span>
+        </div>
+        <div class="s-row-item">
+          <span class="s-row-label"><span class="s-row-accent">You get</span> — evidence on tap</span>
+          <span class="s-row-sub">A trace or a score behind every "it works"</span>
+        </div>
+      </div>
+      <div class="s-callout">Same team, new division of labour: they run the build, you run the definition of done.</div>
+    </div></div>
+
+    <!-- ━━ 10. CONTENT ROWS — ANTI-PATTERNS ━━ -->
+    <div class="slide-canvas"><div class="s-content">
+      <div class="s-eyebrow"><div class="s-eyebrow-sq"></div><span class="s-eyebrow-text">Watch out for</span></div>
+      <div class="s-h1">Five ways it goes wrong</div>
+      <div class="s-list-body">
+        <div class="s-row-item">
+          <span class="s-row-label"><span class="s-row-accent">Demo-trust</span></span>
+          <span class="s-row-sub">It demos beautifully and ships badly — insist on the eval run</span>
+        </div>
+        <div class="s-row-item">
+          <span class="s-row-label"><span class="s-row-accent">Vague-spec drift</span></span>
+          <span class="s-row-sub">A fuzzy brief becomes a confident, wrong product</span>
+        </div>
+        <div class="s-row-item">
+          <span class="s-row-label">The <span class="s-row-accent">velocity illusion</span></span>
+          <span class="s-row-sub">Cheap code is not cheap correctness — the eval cost is real</span>
+        </div>
+        <div class="s-row-item">
+          <span class="s-row-label"><span class="s-row-accent">Scope creep</span></span>
+          <span class="s-row-sub">"It's easy to add" is not a reason to add it</span>
+        </div>
+        <div class="s-row-item">
+          <span class="s-row-label"><span class="s-row-accent">Metric myopia</span></span>
+          <span class="s-row-sub">Agents optimise what you measure — so own the metric</span>
+        </div>
+      </div>
+    </div></div>
+
+    <!-- ━━ 11. CONTENT ROWS — TAKEAWAYS ━━ -->
+    <div class="slide-canvas"><div class="s-content">
+      <div class="s-eyebrow"><div class="s-eyebrow-sq"></div><span class="s-eyebrow-text">If you try one thing</span></div>
+      <div class="s-h1">What you might take from this</div>
+      <div class="s-list-body">
+        <div class="s-row-item">
+          <span class="s-row-label">A one-page <span class="s-row-accent">product context</span> file</span>
+          <span class="s-row-sub">Glossary, tone, non-goals — the agents read it</span>
+        </div>
+        <div class="s-row-item">
+          <span class="s-row-label">A <span class="s-row-accent">rubric + 10-item golden set</span></span>
+          <span class="s-row-sub">For your top feature, this week</span>
+        </div>
+        <div class="s-row-item">
+          <span class="s-row-label">"<span class="s-row-accent">Show me the eval run</span>"</span>
+          <span class="s-row-sub">Make it your standing acceptance ritual</span>
+        </div>
+        <div class="s-row-item">
+          <span class="s-row-label">Review <span class="s-row-accent">designs, not diffs</span></span>
+          <span class="s-row-sub">Move your attention up to the spec</span>
+        </div>
+      </div>
+    </div></div>
+
+  </div>
+
+  <div class="controls">
+    <button class="ctrl-btn" id="btn-prev" aria-label="Previous">&#8592;</button>
+    <span class="ctrl-counter" id="counter">1 / 11</span>
+    <button class="ctrl-btn" id="btn-next" aria-label="Next">&#8594;</button>
+  </div>
+</div>
+
+<script>
+  var slides  = Array.from(document.querySelectorAll('.slide-canvas'));
+  var total   = slides.length;
+  var current = 0;
+  var stage   = document.getElementById('stage');
+  var counter = document.getElementById('counter');
+  var btnPrev = document.getElementById('btn-prev');
+  var btnNext = document.getElementById('btn-next');
+
+  function show(n) {
+    slides[current].classList.remove('active');
+    current = Math.max(0, Math.min(total - 1, n));
+    slides[current].classList.add('active');
+    counter.textContent = (current + 1) + ' / ' + total;
+    btnPrev.disabled = current === 0;
+    btnNext.disabled = current === total - 1;
+  }
+
+  function scale() {
+    var vw = window.innerWidth;
+    var vh = window.innerHeight - 60;
+    var s  = Math.min(vw / 800, vh / 450);
+    stage.style.width  = Math.round(800 * s) + 'px';
+    stage.style.height = Math.round(450 * s) + 'px';
+    slides.forEach(function(el) { el.style.transform = 'scale(' + s + ')'; });
+  }
+
+  btnPrev.addEventListener('click', function() { show(current - 1); });
+  btnNext.addEventListener('click', function() { show(current + 1); });
+  document.addEventListener('keydown', function(e) {
+    if (e.key === 'ArrowRight' || e.key === 'ArrowDown' || e.key === ' ') { e.preventDefault(); show(current + 1); }
+    if (e.key === 'ArrowLeft'  || e.key === 'ArrowUp')                    { e.preventDefault(); show(current - 1); }
+  });
+
+  window.addEventListener('resize', scale);
+  scale();
+  show(0);
+</script>
