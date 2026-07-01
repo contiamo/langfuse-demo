@@ -33,6 +33,12 @@ tasks:
     cmds:
       - uv run rag-ingest --source-dir data/
 
+  watch:
+    desc: Start in Docker with live sync — src/ and frontend/ changes apply without rebuild
+    cmds:
+      - docker compose up -d --build
+      - docker compose watch
+
   dev:
     desc: Start locally with hot-reload (requires running DB via task db)
     cmds:
