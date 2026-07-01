@@ -36,8 +36,7 @@ tasks:
   watch:
     desc: Start in Docker with live sync — src/ and frontend/ changes apply without rebuild
     cmds:
-      - docker compose up -d --build
-      - docker compose watch
+      - docker compose up --watch --build
 
   dev:
     desc: Start locally with hot-reload (requires running DB via task db)
