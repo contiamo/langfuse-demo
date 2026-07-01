@@ -49,7 +49,9 @@ async def index() -> FileResponse:
 @app.post("/chat")
 async def chat(req: ChatRequest) -> StreamingResponse:
     settings = get_settings()
-    trace = tracing.start_trace(req.question, req.session_id, settings.llm_model)
+    trace = tracing.start_trace(
+        req.question, req.session_id, settings.llm_model, settings.workshop_user
+    )
 
     async def events() -> AsyncIterator[str]:
         if trace:

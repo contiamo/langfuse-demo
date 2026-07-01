@@ -17,6 +17,7 @@ class Settings(BaseSettings):
     langfuse_public_key: str = ""
     langfuse_secret_key: str = ""
     langfuse_host: str = "https://cloud.langfuse.com"
+    workshop_user: str = ""  # set to your name — appears as user_id and tag in Langfuse
 
 
 @lru_cache(maxsize=1)
