@@ -364,9 +364,9 @@ html, body {
       </div>
       <div class="s-content-body">
         <div class="s-row"><span class="s-row-label"><strong>Repo:</strong> <em>github.com/contiamo/langfuse-demo</em> → branch <code>v1-baseline-tracing</code></span><span class="s-row-sub">VPN required</span></div>
-        <div class="s-row"><span class="s-row-label"><strong>API key:</strong> OpenAI key — bring your own</span><span class="s-row-sub">via VPN if needed</span></div>
-        <div class="s-row"><span class="s-row-label"><strong>Langfuse credentials:</strong> public key + secret key — provided by us today</span></div>
-        <div class="s-row"><span class="s-row-label"><code>cp .env.example .env</code> — fill in keys, then <code>task run</code> → <code>task migrate</code> → <code>task ingest</code></span><span class="s-row-sub">~2 min</span></div>
+        <div class="s-row"><span class="s-row-label"><strong>Credentials:</strong> OpenAI key (your own) · Langfuse keys (from us) · set <code>WORKSHOP_USER=your-name</code></span></div>
+        <div class="s-row"><span class="s-row-label"><strong>Option A — Docker only:</strong> <code>./start.sh</code> — does everything automatically</span><span class="s-row-sub">~2 min</span></div>
+        <div class="s-row"><span class="s-row-label"><strong>Option B — Task + UV:</strong> <code>cp .env.example .env</code> → <code>task run</code> → <code>task setup</code></span><span class="s-row-sub">~2 min</span></div>
         <div class="s-row"><span class="s-row-label">Open <em>http://localhost:7932</em> — ask a question, then check <em>Langfuse → Tracing</em></span><span class="s-row-sub">verify before lunch</span></div>
       </div>
     </div></div>
