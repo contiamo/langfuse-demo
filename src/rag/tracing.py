@@ -29,14 +29,18 @@ def init(public_key: str, secret_key: str, host: str) -> None:
     litellm.success_callback = ["langfuse"]
 
 
-def start_trace(question: str, session_id: str | None, model: str):
+def start_trace(question: str, session_id: str | None, model: str, user: str = ""):
     if not _langfuse:
         return None
+    tags = [model, "sherlock-holmes"]
+    if user:
+        tags.append(user)
     return _langfuse.trace(
         name="rag_query",
         input={"question": question},
         session_id=session_id,
-        tags=[model, "sherlock-holmes"],
+        user_id=user or None,
+        tags=tags,
     )
 
 
