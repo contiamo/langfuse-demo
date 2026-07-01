@@ -43,8 +43,12 @@ async def index() -> FileResponse:
 
 @app.post("/chat")
 async def chat(req: ChatRequest) -> StreamingResponse:
+    settings = get_settings()
+
     async def events() -> AsyncIterator[str]:
-        async for token in stream_answer(req.question, app.state.repo, req.session_id):
+        async for token in stream_answer(
+            req.question, app.state.repo, req.session_id, settings.workshop_user
+        ):
             yield f"data: {json.dumps({'delta': token})}\n\n"
         yield "data: [DONE]\n\n"
 

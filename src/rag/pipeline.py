@@ -23,12 +23,12 @@ def _context(chunks: list[Chunk]) -> str:
 
 
 async def stream_answer(
-    question: str, repo: ChunkRepository, session_id: str | None = None
+    question: str, repo: ChunkRepository, session_id: str | None = None, user: str = ""
 ) -> AsyncIterator[str]:
     settings = get_settings()
     t0 = time.monotonic()
 
-    trace = tracing.start_trace(question, session_id, settings.llm_model)
+    trace = tracing.start_trace(question, session_id, settings.llm_model, user)
     trace_id = trace.id if trace else None
 
     [vec] = await embed([question], settings.embedding_model, trace_id=trace_id)
