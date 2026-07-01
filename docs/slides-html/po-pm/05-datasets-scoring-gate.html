@@ -1,0 +1,334 @@
+<meta charset="utf-8">
+<title>05 · Datasets, Scores &amp; the Gate — Gen AI for Product · Cornelsen</title>
+<meta name="description" content="Code-free: build a golden dataset by annotation, score it across three tiers, and run the experiment that decides ship or no-ship.">
+<style>
+:root {
+  --night:     #1A1321;
+  --berry:     #7E1C42;
+  --gold:      #C8924C;
+  --parchment: #EDE8DF;
+  --ink:       #1D1422;
+  --chalk:     #F4F1EC;
+  --rule:      #D4CCBC;
+  --muted:     #8A7E72;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+html, body { width: 100%; height: 100%; background: #0D0A10; overflow: hidden; font-family: Georgia, 'Times New Roman', serif; }
+
+.deck { width: 100vw; height: 100vh; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 12px; }
+.stage-wrap { position: relative; }
+.slide-canvas { position: absolute; top: 0; left: 0; width: 800px; height: 450px; transform-origin: top left; overflow: hidden; display: none; }
+.slide-canvas.active { display: block; }
+
+.controls { display: flex; align-items: center; gap: 12px; flex-shrink: 0; }
+.ctrl-btn { background: none; border: 1px solid rgba(244,241,236,0.18); color: rgba(244,241,236,0.55); width: 32px; height: 32px; cursor: pointer; font-size: 14px; display: flex; align-items: center; justify-content: center; }
+.ctrl-btn:hover:not(:disabled) { background: rgba(244,241,236,0.08); }
+.ctrl-btn:disabled { opacity: 0.2; cursor: default; }
+.ctrl-counter { font-family: 'SF Mono','Menlo',monospace; font-size: 11px; color: rgba(244,241,236,0.3); min-width: 52px; text-align: center; font-variant-numeric: tabular-nums; user-select: none; }
+
+/* ── COVER ── */
+.s-cover { width: 800px; height: 450px; display: grid; grid-template-columns: 520px 280px; }
+.s-cover-left { background: var(--night); padding: 40px 48px; display: flex; flex-direction: column; justify-content: space-between; }
+.s-cover-right { background: var(--berry); display: flex; align-items: center; justify-content: center; }
+.s-wordmark { display: flex; align-items: center; gap: 8px; color: var(--chalk); font-family: system-ui,sans-serif; font-size: 9px; letter-spacing: 0.18em; text-transform: uppercase; opacity: 0.7; }
+.s-cover-body { display: flex; flex-direction: column; }
+.s-cover-eyebrow { font-family: system-ui,sans-serif; font-size: 9px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--gold); margin-bottom: 12px; font-weight: 600; }
+.s-cover-h1 { font-size: 56px; font-weight: bold; color: var(--chalk); line-height: 1.02; }
+.s-cover-h1-gold { color: var(--gold); }
+.s-cover-sub { font-style: italic; font-size: 16px; color: rgba(244,241,236,0.65); line-height: 1.45; margin-top: 16px; max-width: 400px; }
+.s-cover-footer { display: flex; flex-direction: column; gap: 2px; }
+.s-cover-speaker { font-size: 12px; font-weight: bold; color: var(--chalk); }
+.s-cover-role { font-size: 10px; color: rgba(244,241,236,0.4); }
+
+/* ── SECTION DIVIDER ── */
+.s-div { width: 800px; height: 450px; display: grid; grid-template-rows: 290px 160px; }
+.s-div-top { background: var(--berry); padding: 0 60px; display: flex; flex-direction: column; justify-content: center; }
+.s-div-eyebrow { font-family: system-ui,sans-serif; font-weight: 600; font-size: 9px; letter-spacing: 0.14em; text-transform: uppercase; color: rgba(244,241,236,0.7); margin-bottom: 16px; }
+.s-div-title { font-weight: bold; color: white; line-height: 1.04; font-size: 60px; }
+.s-div-bottom { background: var(--night); padding: 0 60px; display: flex; align-items: center; }
+.s-div-meta { font-family: system-ui,sans-serif; font-size: 10px; letter-spacing: 0.06em; text-transform: uppercase; color: rgba(244,241,236,0.28); }
+.s-div-meta strong { color: rgba(200,146,76,0.85); font-weight: 600; }
+
+/* ── CONTENT (shared) ── */
+.s-content { width: 800px; height: 450px; background: var(--parchment); padding: 32px 48px 26px; display: flex; flex-direction: column; }
+.s-eyebrow { display: flex; align-items: center; gap: 7px; margin-bottom: 11px; }
+.s-eyebrow-sq { width: 9px; height: 9px; background: var(--berry); flex-shrink: 0; }
+.s-eyebrow-text { font-family: system-ui,sans-serif; font-weight: 600; font-size: 9px; letter-spacing: 0.13em; text-transform: uppercase; color: var(--berry); }
+.s-h1 { font-size: 31px; font-weight: bold; color: var(--ink); line-height: 1.07; margin-bottom: 18px; }
+
+/* ── CONTENT — CARDS ── */
+.s-card-row { display: grid; grid-template-columns: repeat(5, 1fr); gap: 9px; flex: 1; }
+.s-card { background: white; border-top: 3px solid var(--berry); padding: 13px 13px; display: flex; flex-direction: column; gap: 7px; }
+.s-card.active { background: var(--berry); border-top-color: var(--gold); }
+.s-card-year { font-size: 25px; font-weight: bold; color: var(--berry); line-height: 1; }
+.s-card.active .s-card-year { color: var(--gold); }
+.s-card-title { font-size: 12.5px; font-weight: bold; color: var(--ink); line-height: 1.2; }
+.s-card.active .s-card-title { color: white; }
+.s-card hr { border: none; border-top: 1px solid rgba(0,0,0,0.1); }
+.s-card.active hr { border-top-color: rgba(255,255,255,0.2); }
+.s-card-sub { font-family: system-ui,sans-serif; font-size: 9px; font-weight: 700; color: var(--gold); letter-spacing: 0.02em; }
+.s-card-bullets { font-size: 9.5px; color: var(--ink); list-style: none; display: flex; flex-direction: column; gap: 3px; line-height: 1.3; }
+.s-card.active .s-card-bullets { color: rgba(244,241,236,0.9); }
+.s-card-bullets li::before { content: "• "; }
+.s-card-bullets .dim { color: rgba(29,20,34,0.4); font-style: italic; }
+.s-card.active .s-card-bullets .dim { color: rgba(244,241,236,0.4); }
+
+/* ── CONTENT — ROWS ── */
+.s-list-body { display: flex; flex-direction: column; gap: 8px; flex: 1; }
+.s-row-item { background: white; border: 1px solid rgba(212,204,188,0.8); padding: 12px 18px; display: flex; align-items: center; gap: 20px; }
+.s-row-label { font-size: 14px; font-weight: bold; color: var(--ink); }
+.s-row-accent { color: var(--berry); }
+.s-row-sub { font-style: italic; font-size: 12.5px; color: rgba(29,20,34,0.45); margin-left: auto; text-align: right; }
+.s-callout { font-size: 17px; font-weight: bold; color: var(--berry); font-style: italic; margin-top: 12px; }
+
+/* ── STATEMENT ── */
+.s-statement { width: 800px; height: 450px; background: var(--parchment); padding: 56px 64px; display: flex; flex-direction: column; justify-content: center; }
+.s-statement-h1 { font-size: 60px; font-weight: bold; color: var(--ink); line-height: 1.03; margin-bottom: 24px; }
+.s-statement-sub { font-style: italic; font-size: 20px; color: rgba(29,20,34,0.5); line-height: 1.5; max-width: 600px; }
+</style>
+
+<div class="deck">
+  <div class="stage-wrap" id="stage">
+
+    <!-- ━━ 1. COVER ━━ -->
+    <div class="slide-canvas"><div class="s-cover">
+      <div class="s-cover-left">
+        <div class="s-wordmark">
+          <svg width="14" height="14" viewBox="0 0 100 100" fill="none" aria-hidden="true">
+            <path d="M74 17 A35 35 0 1 0 74 83" stroke="currentColor" stroke-width="10" stroke-linecap="round"/>
+            <path d="M67 30 A22 22 0 1 0 67 70" stroke="currentColor" stroke-width="9" stroke-linecap="round"/>
+            <path d="M60 42 A10 10 0 1 0 60 58" stroke="currentColor" stroke-width="8" stroke-linecap="round"/>
+          </svg>
+          Contiamo
+        </div>
+        <div class="s-cover-body">
+          <div class="s-cover-eyebrow">Gen AI for Product · Cornelsen · Berlin</div>
+          <div class="s-cover-h1">Datasets, Scores<br><span class="s-cover-h1-gold">&amp; the Gate.</span></div>
+          <div class="s-cover-sub">Build a golden dataset by annotation, score it, and run the experiment that decides ship or no-ship.</div>
+        </div>
+        <div class="s-cover-footer">
+          <div class="s-cover-speaker">Contiamo</div>
+          <div class="s-cover-role">14:15 · Leipziger Straße 126, Berlin</div>
+        </div>
+      </div>
+      <div class="s-cover-right">
+        <svg width="140" height="140" viewBox="0 0 100 100" fill="none" aria-hidden="true">
+          <path d="M74 17 A35 35 0 1 0 74 83" stroke="rgba(244,241,236,0.85)" stroke-width="8" stroke-linecap="round"/>
+          <path d="M67 30 A22 22 0 1 0 67 70" stroke="rgba(244,241,236,0.85)" stroke-width="7" stroke-linecap="round"/>
+          <path d="M60 42 A10 10 0 1 0 60 58" stroke="rgba(244,241,236,0.85)" stroke-width="6" stroke-linecap="round"/>
+        </svg>
+      </div>
+    </div></div>
+
+    <!-- ━━ 2. STATEMENT — DEFINITION OF DONE ━━ -->
+    <div class="slide-canvas"><div class="s-statement">
+      <div class="s-statement-h1">This is your<br><span class="s-cover-h1-gold">definition of done.</span></div>
+      <div class="s-statement-sub">A golden dataset + a rubric + a passing threshold — the acceptance criteria for a non-deterministic feature.</div>
+    </div></div>
+
+    <!-- ━━ 3. DIVIDER — BUILD THE DATASET ━━ -->
+    <div class="slide-canvas"><div class="s-div">
+      <div class="s-div-top">
+        <div class="s-div-eyebrow">Block A · 14:15 · 45 min</div>
+        <div class="s-div-title">Build the dataset</div>
+      </div>
+      <div class="s-div-bottom"><div class="s-div-meta"><strong>The principle</strong> &nbsp;Ground truth, curated from real traffic</div></div>
+    </div></div>
+
+    <!-- ━━ 4. CONTENT ROWS — THREE SOURCES ━━ -->
+    <div class="slide-canvas"><div class="s-content">
+      <div class="s-eyebrow"><div class="s-eyebrow-sq"></div><span class="s-eyebrow-text">Block A · Sources</span></div>
+      <div class="s-h1">Three sources for dataset items</div>
+      <div class="s-list-body">
+        <div class="s-row-item">
+          <span class="s-row-label"><span class="s-row-accent">Curated failures</span></span>
+          <span class="s-row-sub">highest signal — the wrong answers you flagged</span>
+        </div>
+        <div class="s-row-item">
+          <span class="s-row-label"><span class="s-row-accent">Sampled traces</span></span>
+          <span class="s-row-sub">seeded from tagged traffic — represents real usage</span>
+        </div>
+        <div class="s-row-item">
+          <span class="s-row-label"><span class="s-row-accent">Synthetic edge cases</span></span>
+          <span class="s-row-sub">questions the corpus can't answer, other languages</span>
+        </div>
+      </div>
+      <div class="s-callout">Over-represent failures — production traffic skews happy-path.</div>
+    </div></div>
+
+    <!-- ━━ 5. CONTENT ROWS — ANATOMY OF AN ITEM ━━ -->
+    <div class="slide-canvas"><div class="s-content">
+      <div class="s-eyebrow"><div class="s-eyebrow-sq"></div><span class="s-eyebrow-text">Block A · Anatomy</span></div>
+      <div class="s-h1">What's in a dataset item</div>
+      <div class="s-list-body">
+        <div class="s-row-item">
+          <span class="s-row-label"><span class="s-row-accent">input</span></span>
+          <span class="s-row-sub">the question — re-run every experiment</span>
+        </div>
+        <div class="s-row-item">
+          <span class="s-row-label"><span class="s-row-accent">expected output</span></span>
+          <span class="s-row-sub">a reference answer for the judge (optional)</span>
+        </div>
+        <div class="s-row-item">
+          <span class="s-row-label"><span class="s-row-accent">retrieved context</span></span>
+          <span class="s-row-sub">the chunks — needed for faithfulness</span>
+        </div>
+        <div class="s-row-item">
+          <span class="s-row-label"><span class="s-row-accent">source trace</span></span>
+          <span class="s-row-sub">links back to the real production trace</span>
+        </div>
+      </div>
+      <div class="s-callout">You annotate; the item remembers where it came from.</div>
+    </div></div>
+
+    <!-- ━━ 6. DIVIDER — SCORE & GATE ━━ -->
+    <div class="slide-canvas"><div class="s-div">
+      <div class="s-div-top">
+        <div class="s-div-eyebrow">Block B · 15:15 · 45 min</div>
+        <div class="s-div-title">Score &amp; gate</div>
+      </div>
+      <div class="s-div-bottom"><div class="s-div-meta"><strong>The principle</strong> &nbsp;Three sources of score, one table</div></div>
+    </div></div>
+
+    <!-- ━━ 7. CONTENT CARDS — SCORING TIERS ━━ -->
+    <div class="slide-canvas"><div class="s-content">
+      <div class="s-eyebrow"><div class="s-eyebrow-sq"></div><span class="s-eyebrow-text">Block B · Scoring</span></div>
+      <div class="s-h1">Scoring: three tiers, one table</div>
+      <div class="s-card-row" style="grid-template-columns: repeat(3,1fr)">
+        <div class="s-card">
+          <div class="s-card-year">T1</div>
+          <div class="s-card-title">Human</div>
+          <hr>
+          <div class="s-card-sub">ground truth</div>
+          <ul class="s-card-bullets">
+            <li>👍/👎 &amp; annotation</li>
+            <li>Zero model cost</li>
+            <li class="dim">calibrates the judges</li>
+          </ul>
+        </div>
+        <div class="s-card">
+          <div class="s-card-year">T2</div>
+          <div class="s-card-title">Heuristics</div>
+          <hr>
+          <div class="s-card-sub">free, always on</div>
+          <ul class="s-card-bullets">
+            <li>TTFT, turn count</li>
+            <li>No model cost</li>
+            <li class="dim">slow often = worse</li>
+          </ul>
+        </div>
+        <div class="s-card active">
+          <div class="s-card-year">T3</div>
+          <div class="s-card-title">LLM-as-Judge</div>
+          <hr>
+          <div class="s-card-sub">at scale</div>
+          <ul class="s-card-bullets">
+            <li>Faithfulness on every trace</li>
+            <li>No code — runs in Langfuse</li>
+            <li class="dim">thousands per minute</li>
+          </ul>
+        </div>
+      </div>
+    </div></div>
+
+    <!-- ━━ 8. CONTENT ROWS — EXPERIMENT & GATE ━━ -->
+    <div class="slide-canvas"><div class="s-content">
+      <div class="s-eyebrow"><div class="s-eyebrow-sq"></div><span class="s-eyebrow-text">Block B · The gate</span></div>
+      <div class="s-h1">The experiment &amp; the gate</div>
+      <div class="s-list-body">
+        <div class="s-row-item">
+          <span class="s-row-label"><span class="s-row-accent">Change one variable</span></span>
+          <span class="s-row-sub">model A vs B, or prompt v1 vs v2 — fixed dataset, fixed score</span>
+        </div>
+        <div class="s-row-item">
+          <span class="s-row-label"><span class="s-row-accent">Compare side by side</span></span>
+          <span class="s-row-sub">per-item faithfulness in the Experiments tab</span>
+        </div>
+        <div class="s-row-item">
+          <span class="s-row-label"><span class="s-row-accent">Set the threshold</span></span>
+          <span class="s-row-sub">'within 5% → ship the cheaper model' — your call</span>
+        </div>
+        <div class="s-row-item">
+          <span class="s-row-label"><span class="s-row-accent">The regression gate</span></span>
+          <span class="s-row-sub">below threshold → CI blocks the merge</span>
+        </div>
+      </div>
+      <div class="s-callout">The threshold is a product decision — you own it.</div>
+    </div></div>
+
+    <!-- ━━ 9. CONTENT ROWS — RUN THE LOOP ━━ -->
+    <div class="slide-canvas"><div class="s-content">
+      <div class="s-eyebrow"><div class="s-eyebrow-sq"></div><span class="s-eyebrow-text">Lab · ~15 min</span></div>
+      <div class="s-h1">Run the loop</div>
+      <div class="s-list-body">
+        <div class="s-row-item">
+          <span class="s-row-label"><span class="s-row-accent">Annotate</span></span>
+          <span class="s-row-sub">score 5 items against your rubric</span>
+        </div>
+        <div class="s-row-item">
+          <span class="s-row-label"><span class="s-row-accent">Add expected outputs</span></span>
+          <span class="s-row-sub">for the ones you know the answer to</span>
+        </div>
+        <div class="s-row-item">
+          <span class="s-row-label"><span class="s-row-accent">Set up a judge</span></span>
+          <span class="s-row-sub">RAGAS Faithfulness, in the UI</span>
+        </div>
+        <div class="s-row-item">
+          <span class="s-row-label"><span class="s-row-accent">Compare two runs</span></span>
+          <span class="s-row-sub">read the experiment side by side</span>
+        </div>
+        <div class="s-row-item">
+          <span class="s-row-label"><span class="s-row-accent">Set your gate</span></span>
+          <span class="s-row-sub">pick the threshold you'd ship on</span>
+        </div>
+      </div>
+      <div class="s-callout">You've now run the full loop — rubric to gate — on a real feature.</div>
+    </div></div>
+
+  </div>
+
+  <div class="controls">
+    <button class="ctrl-btn" id="btn-prev" aria-label="Previous">&#8592;</button>
+    <span class="ctrl-counter" id="counter">1 / 9</span>
+    <button class="ctrl-btn" id="btn-next" aria-label="Next">&#8594;</button>
+  </div>
+</div>
+
+<script>
+  var slides  = Array.from(document.querySelectorAll('.slide-canvas'));
+  var total   = slides.length;
+  var current = 0;
+  var stage   = document.getElementById('stage');
+  var counter = document.getElementById('counter');
+  var btnPrev = document.getElementById('btn-prev');
+  var btnNext = document.getElementById('btn-next');
+
+  function show(n) {
+    slides[current].classList.remove('active');
+    current = Math.max(0, Math.min(total - 1, n));
+    slides[current].classList.add('active');
+    counter.textContent = (current + 1) + ' / ' + total;
+    btnPrev.disabled = current === 0;
+    btnNext.disabled = current === total - 1;
+  }
+
+  function scale() {
+    var vw = window.innerWidth;
+    var vh = window.innerHeight - 60;
+    var s  = Math.min(vw / 800, vh / 450);
+    stage.style.width  = Math.round(800 * s) + 'px';
+    stage.style.height = Math.round(450 * s) + 'px';
+    slides.forEach(function(el) { el.style.transform = 'scale(' + s + ')'; });
+  }
+
+  btnPrev.addEventListener('click', function() { show(current - 1); });
+  btnNext.addEventListener('click', function() { show(current + 1); });
+  document.addEventListener('keydown', function(e) {
+    if (e.key === 'ArrowRight' || e.key === 'ArrowDown' || e.key === ' ') { e.preventDefault(); show(current + 1); }
+    if (e.key === 'ArrowLeft'  || e.key === 'ArrowUp')                    { e.preventDefault(); show(current - 1); }
+  });
+
+  window.addEventListener('resize', scale);
+  scale();
+  show(0);
+</script>

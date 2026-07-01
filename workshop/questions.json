@@ -1,0 +1,123 @@
+{
+  "_comment": "Question bank for the PO/PM workshop traffic generator. Each conversation shares one Langfuse session (see `session`). `feedback` is up | down | none. `default_run: false` conversations are skipped unless selected with --only (they are meant for a second app pass under different env, e.g. starved retrieval).",
+  "conversations": [
+    {
+      "group": "healthy",
+      "session": "meeting",
+      "turns": [
+        { "q": "How did Sherlock Holmes and Dr. Watson first meet?", "feedback": "up" },
+        { "q": "What was Watson's profession before he met Holmes?", "feedback": "up" },
+        { "q": "Why was Watson looking for someone to share rooms with?", "feedback": "none" }
+      ]
+    },
+    {
+      "group": "healthy",
+      "session": "irene-adler",
+      "turns": [
+        { "q": "Who is Irene Adler?", "feedback": "up" },
+        { "q": "How does she outwit Sherlock Holmes?", "feedback": "up" },
+        { "q": "Why does Holmes keep a photograph of her?", "feedback": "up" }
+      ]
+    },
+    {
+      "group": "healthy",
+      "session": "red-headed-league",
+      "turns": [
+        { "q": "What was the Red-Headed League and what was its real purpose?", "feedback": "up" }
+      ]
+    },
+    {
+      "group": "healthy",
+      "session": "speckled-band",
+      "turns": [
+        { "q": "What happens in The Adventure of the Speckled Band?", "feedback": "up" }
+      ]
+    },
+    {
+      "group": "healthy",
+      "session": "afghanistan-deduction",
+      "turns": [
+        { "q": "How did Holmes deduce that Watson had been in Afghanistan?", "feedback": "up" }
+      ]
+    },
+    {
+      "group": "healthy",
+      "session": "holmes-method",
+      "turns": [
+        { "q": "What method does Holmes use to solve his cases?", "feedback": "none" }
+      ]
+    },
+    {
+      "group": "hard",
+      "session": "watson-admiration",
+      "turns": [
+        { "q": "What does Watson find most impressive about Holmes?", "feedback": "none" }
+      ]
+    },
+    {
+      "group": "hard",
+      "session": "watson-change",
+      "turns": [
+        { "q": "How has working with Holmes changed Watson over the course of their friendship?", "feedback": "down" }
+      ]
+    },
+    {
+      "group": "out_of_corpus",
+      "session": "reichenbach",
+      "turns": [
+        { "q": "What happened between Holmes and Moriarty at the Reichenbach Falls?", "feedback": "down" }
+      ]
+    },
+    {
+      "group": "out_of_corpus",
+      "session": "baskervilles",
+      "turns": [
+        { "q": "Tell me about the case of the Hound of the Baskervilles.", "feedback": "down" }
+      ]
+    },
+    {
+      "group": "out_of_corpus",
+      "session": "mycroft",
+      "turns": [
+        { "q": "What is Holmes's relationship with his brother Mycroft?", "feedback": "down" }
+      ]
+    },
+    {
+      "group": "out_of_corpus",
+      "session": "anachronism",
+      "turns": [
+        { "q": "What does Sherlock Holmes think about modern smartphones and the internet?", "feedback": "down" }
+      ]
+    },
+    {
+      "group": "multilingual",
+      "session": "irene-adler-de",
+      "turns": [
+        { "q": "Wer ist Irene Adler und warum bewundert Holmes sie?", "feedback": "up" }
+      ]
+    },
+    {
+      "group": "multilingual",
+      "session": "reichenbach-de",
+      "turns": [
+        { "q": "Was geschah zwischen Holmes und Moriarty an den Reichenbachfällen?", "feedback": "down" }
+      ]
+    },
+    {
+      "group": "starved",
+      "session": "redheaded",
+      "default_run": false,
+      "turns": [
+        { "q": "What was the Red-Headed League and what was its real purpose?", "feedback": "down" }
+      ]
+    },
+    {
+      "group": "starved",
+      "session": "speckled",
+      "default_run": false,
+      "turns": [
+        { "q": "What happens in The Adventure of the Speckled Band?", "feedback": "down" }
+      ]
+    }
+  ]
+}
