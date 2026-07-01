@@ -1,6 +1,6 @@
 <meta charset="utf-8">
 <title>01 · GenAI in PO/PM &amp; Interfacing with GenAI-Enabled Engineers — Gen AI for Product · Cornelsen</title>
-<meta name="description" content="45-minute field report: how the PO/PM role shifts when engineering is agent-driven, and how to work across the handoff — context, workflow, verification.">
+<meta name="description" content="45-minute field report: how product owners at Contiamo work with coding agents — the same context stack as engineers, pointed at product work.">
 <style>
 :root {
   --night:     #1A1321;
@@ -103,8 +103,8 @@ html, body { width: 100%; height: 100%; background: #0D0A10; overflow: hidden; f
         </div>
         <div class="s-cover-body">
           <div class="s-cover-eyebrow">Gen AI for Product · Cornelsen · Berlin</div>
-          <div class="s-cover-h1">How We Ship<br><span class="s-cover-h1-gold">With AI.</span></div>
-          <div class="s-cover-sub">The product side of building with coding agents — how the PO/PM role shifts, and how to work with GenAI-enabled engineers.</div>
+          <div class="s-cover-h1">POs Build<br><span class="s-cover-h1-gold">With AI, Too.</span></div>
+          <div class="s-cover-sub">A field report: how product owners at Contiamo work with coding agents — the same context stack as our engineers, pointed at product work.</div>
         </div>
         <div class="s-cover-footer">
           <div class="s-cover-speaker">Contiamo</div>
@@ -120,68 +120,68 @@ html, body { width: 100%; height: 100%; background: #0D0A10; overflow: hidden; f
       </div>
     </div></div>
 
-    <!-- ━━ 2. STATEMENT — FRAMING ━━ -->
+    <!-- ━━ 2. STATEMENT — CONVERGENCE THESIS ━━ -->
     <div class="slide-canvas"><div class="s-statement">
-      <div class="s-statement-h1">A field report from<br>the other side of the handoff.</div>
-      <div class="s-statement-sub">You brief the engineers; they build with agents.</div>
+      <div class="s-statement-h1">Two roles,<br>converging.</div>
+      <div class="s-statement-sub">POs and PMs are getting more technically adept; engineers are getting more product-minded. Coding agents are what pull them together — and POs use them every day.</div>
     </div></div>
 
     <!-- ━━ 3. DIVIDER — CONTEXT ━━ -->
     <div class="slide-canvas"><div class="s-div">
       <div class="s-div-top">
-        <div class="s-div-eyebrow">Part one of three</div>
+        <div class="s-div-eyebrow">Part one of two</div>
         <div class="s-div-title">Context</div>
       </div>
-      <div class="s-div-bottom"><div class="s-div-meta"><strong>The principle</strong> &nbsp;What you feed the machine before anyone writes code</div></div>
+      <div class="s-div-bottom"><div class="s-div-meta"><strong>The principle</strong> &nbsp;A PO's agent gets the same context ours give engineers</div></div>
     </div></div>
 
-    <!-- ━━ 4. CONTENT CARDS — WHAT YOU FEED THE MACHINE ━━ -->
+    <!-- ━━ 4. CONTENT CARDS — CONTEXT IN LAYERS (PO EDITION) ━━ -->
     <div class="slide-canvas"><div class="s-content">
       <div class="s-eyebrow"><div class="s-eyebrow-sq"></div><span class="s-eyebrow-text">Part one · Context</span></div>
-      <div class="s-h1">Your written artifacts are now executable</div>
+      <div class="s-h1">Same context, aimed at product</div>
       <div class="s-card-row">
         <div class="s-card active">
-          <div class="s-card-year">Spec</div>
-          <div class="s-card-title">The brief agents read</div>
+          <div class="s-card-year">All</div>
+          <div class="s-card-title">The shared baseline</div>
           <hr>
-          <div class="s-card-sub">PRD / ticket</div>
+          <div class="s-card-sub">contiamo-context</div>
           <ul class="s-card-bullets">
-            <li>Vague in → assumptions out</li>
-            <li>Precise acceptance criteria</li>
-            <li class="dim">Agents fill every gap you leave</li>
+            <li>Injected into every session</li>
+            <li>Who we are, how we work</li>
+            <li class="dim">Same for POs and engineers</li>
           </ul>
         </div>
         <div class="s-card">
-          <div class="s-card-year">Criteria</div>
-          <div class="s-card-title">What "good" means</div>
+          <div class="s-card-year">Team</div>
+          <div class="s-card-title">Skills for the job</div>
           <hr>
-          <div class="s-card-sub">Score dimensions</div>
+          <div class="s-card-sub">Marketplace</div>
           <ul class="s-card-bullets">
-            <li>Faithfulness, tone, safety</li>
-            <li>Durable, not a one-off QA</li>
-            <li class="dim">Your definition of done</li>
+            <li>Context management &amp; specs</li>
+            <li>Expert-owned, shared</li>
+            <li class="dim">PRD &amp; task helpers</li>
           </ul>
         </div>
         <div class="s-card">
-          <div class="s-card-year">Data</div>
-          <div class="s-card-title">Ground truth</div>
+          <div class="s-card-year">Repo</div>
+          <div class="s-card-title">The project manual</div>
           <hr>
-          <div class="s-card-sub">Golden dataset</div>
+          <div class="s-card-sub">CLAUDE.md</div>
           <ul class="s-card-bullets">
-            <li>Real failures you curated</li>
-            <li>Expected outputs</li>
-            <li class="dim">Reused every experiment</li>
+            <li>Conventions, architecture</li>
+            <li>Auto-loaded</li>
+            <li class="dim">The agent knows the project</li>
           </ul>
         </div>
         <div class="s-card">
-          <div class="s-card-year">Voice</div>
-          <div class="s-card-title">House rules</div>
+          <div class="s-card-year">Code</div>
+          <div class="s-card-title">The real codebase</div>
           <hr>
-          <div class="s-card-sub">Glossary &amp; tone</div>
+          <div class="s-card-sub">Read access</div>
           <ul class="s-card-bullets">
-            <li>Domain terms, personas</li>
-            <li>Non-goals, guardrails</li>
-            <li class="dim">A product CLAUDE.md</li>
+            <li>Agents validate approaches</li>
+            <li>Check what's feasible</li>
+            <li class="dim">Answers grounded in code</li>
           </ul>
         </div>
         <div class="s-card">
@@ -190,163 +190,85 @@ html, body { width: 100%; height: 100%; background: #0D0A10; overflow: hidden; f
           <hr>
           <div class="s-card-sub">Connected systems</div>
           <ul class="s-card-bullets">
-            <li>PRDs → Notion</li>
-            <li>Decisions → Slack</li>
-            <li class="dim">Agents can read them</li>
+            <li>Tasks, PRDs, Langfuse</li>
+            <li>Notion · Slack · Linear</li>
+            <li class="dim">Agents read and write</li>
           </ul>
         </div>
       </div>
     </div></div>
 
-    <!-- ━━ 5. DIVIDER — WORKFLOW ━━ -->
+    <!-- ━━ 5. DIVIDER — THE WORK ━━ -->
     <div class="slide-canvas"><div class="s-div">
       <div class="s-div-top">
-        <div class="s-div-eyebrow">Part two of three</div>
-        <div class="s-div-title">Workflow</div>
+        <div class="s-div-eyebrow">Part two of two</div>
+        <div class="s-div-title">The work</div>
       </div>
-      <div class="s-div-bottom"><div class="s-div-meta"><strong>The principle</strong> &nbsp;Decide the spec, then delegate the build</div></div>
+      <div class="s-div-bottom"><div class="s-div-meta"><strong>The principle</strong> &nbsp;The same tools, pointed at product work</div></div>
     </div></div>
 
-    <!-- ━━ 6. CONTENT ROWS — WORKFLOW ━━ -->
+    <!-- ━━ 6. CONTENT ROWS — SPECIFY ━━ -->
     <div class="slide-canvas"><div class="s-content">
-      <div class="s-eyebrow"><div class="s-eyebrow-sq"></div><span class="s-eyebrow-text">Part two · Workflow</span></div>
-      <div class="s-h1">Decide the spec. Delegate the build.</div>
+      <div class="s-eyebrow"><div class="s-eyebrow-sq"></div><span class="s-eyebrow-text">Part two · Specify</span></div>
+      <div class="s-h1">Before a line is written</div>
       <div class="s-list-body">
         <div class="s-row-item">
-          <span class="s-row-label">Judgment moved up to <span class="s-row-accent">problem definition</span></span>
-          <span class="s-row-sub">When code is cheap, knowing what's worth building is the bottleneck</span>
+          <span class="s-row-label"><span class="s-row-accent">Research the requirements</span></span>
+          <span class="s-row-sub">Compile sources, prior art, and constraints</span>
         </div>
         <div class="s-row-item">
-          <span class="s-row-label">Review <span class="s-row-accent">designs</span>, not diffs</span>
-          <span class="s-row-sub">The discussion lives at the design-doc level, not the ticket</span>
+          <span class="s-row-label"><span class="s-row-accent">Iterate on the PRD</span></span>
+          <span class="s-row-sub">Several drafting passes, agent-assisted</span>
         </div>
         <div class="s-row-item">
-          <span class="s-row-label"><span class="s-row-accent">Eval-first</span> specs</span>
-          <span class="s-row-sub">A feature ships with its dataset, quality criteria, and threshold — that is the acceptance test</span>
-        </div>
-        <div class="s-row-item">
-          <span class="s-row-label">Cheap prototypes change <span class="s-row-accent">discovery</span></span>
-          <span class="s-row-sub">"Build three variants" is a Tuesday now — use it to explore, not just deliver</span>
-        </div>
-        <div class="s-row-item">
-          <span class="s-row-label">Use AI for <span class="s-row-accent">your own</span> work</span>
-          <span class="s-row-sub">Synthesize feedback, draft quality criteria, generate edge cases, first-draft PRDs</span>
+          <span class="s-row-label"><span class="s-row-accent">Structure the work</span></span>
+          <span class="s-row-sub">Create tasks, order them, prioritise, plan</span>
         </div>
       </div>
-      <div class="s-callout">The expensive judgement moved up to the spec — that's where your attention goes.</div>
+      <div class="s-callout">The judgement stays yours — the legwork and drafting move to the agent.</div>
     </div></div>
 
-    <!-- ━━ 7. DIVIDER — VERIFICATION ━━ -->
-    <div class="slide-canvas"><div class="s-div">
-      <div class="s-div-top">
-        <div class="s-div-eyebrow">Part three of three</div>
-        <div class="s-div-title">Verification</div>
-      </div>
-      <div class="s-div-bottom"><div class="s-div-meta"><strong>The principle</strong> &nbsp;You own the gate</div></div>
-    </div></div>
-
-    <!-- ━━ 8. CONTENT ROWS — VERIFICATION ━━ -->
+    <!-- ━━ 7. CONTENT ROWS — BUILD & VERIFY ━━ -->
     <div class="slide-canvas"><div class="s-content">
-      <div class="s-eyebrow"><div class="s-eyebrow-sq"></div><span class="s-eyebrow-text">Part three · Verification</span></div>
-      <div class="s-h1">The demo is not the deliverable</div>
+      <div class="s-eyebrow"><div class="s-eyebrow-sq"></div><span class="s-eyebrow-text">Part two · Build &amp; verify</span></div>
+      <div class="s-h1">Once there's something to look at</div>
       <div class="s-list-body">
         <div class="s-row-item">
-          <span class="s-row-label">The threshold is a <span class="s-row-accent">product decision</span></span>
-          <span class="s-row-sub">"Within 5% faithfulness → ship the cheaper model" is your call, not an engineering detail</span>
+          <span class="s-row-label"><span class="s-row-accent">Build a prototype</span></span>
+          <span class="s-row-sub">Test an approach before committing to it</span>
         </div>
         <div class="s-row-item">
-          <span class="s-row-label">Traces &amp; evals are the <span class="s-row-accent">shared language</span></span>
-          <span class="s-row-sub">Settle quality disputes over a session replay or a score, not opinions</span>
+          <span class="s-row-label"><span class="s-row-accent">Review the implementation</span></span>
+          <span class="s-row-sub">Have an agent explain and question what was built</span>
         </div>
         <div class="s-row-item">
-          <span class="s-row-label">"<span class="s-row-accent">Show me the eval run</span>"</span>
-          <span class="s-row-sub">The new acceptance ritual — insist on it before you call it done</span>
-        </div>
-        <div class="s-row-item">
-          <span class="s-row-label">Accountability <span class="s-row-accent">stays with a person</span></span>
-          <span class="s-row-sub">For AI features, that person is often you</span>
+          <span class="s-row-label"><span class="s-row-accent">Ask Langfuse</span></span>
+          <span class="s-row-sub">Question a project's traces, cost, and quality</span>
         </div>
       </div>
-      <div class="s-callout">You can't ship what you can't measure — so owning the measure is owning the product.</div>
+      <div class="s-callout">Reviewing a build by asking questions — no code-reading — is the one that surprises people.</div>
     </div></div>
 
-    <!-- ━━ 9. CONTENT ROWS — THE TWO-WAY CONTRACT ━━ -->
-    <div class="slide-canvas"><div class="s-content">
-      <div class="s-eyebrow"><div class="s-eyebrow-sq"></div><span class="s-eyebrow-text">The interface</span></div>
-      <div class="s-h1">The new contract, both ways</div>
-      <div class="s-list-body">
-        <div class="s-row-item">
-          <span class="s-row-label"><span class="s-row-accent">You bring</span> — success criteria</span>
-          <span class="s-row-sub">Quality criteria + dataset + threshold, not just a user story</span>
-        </div>
-        <div class="s-row-item">
-          <span class="s-row-label"><span class="s-row-accent">You bring</span> — faster decisions</span>
-          <span class="s-row-sub">Iteration got cheap; the bottleneck is now your call</span>
-        </div>
-        <div class="s-row-item">
-          <span class="s-row-label"><span class="s-row-accent">You bring</span> — design-level engagement</span>
-          <span class="s-row-sub">Review the approach and own the quality gate</span>
-        </div>
-        <div class="s-row-item">
-          <span class="s-row-label"><span class="s-row-accent">You get</span> — cheap prototypes &amp; variants</span>
-          <span class="s-row-sub">Three options to compare, not one to accept</span>
-        </div>
-        <div class="s-row-item">
-          <span class="s-row-label"><span class="s-row-accent">You get</span> — evidence on tap</span>
-          <span class="s-row-sub">A trace or a score behind every "it works"</span>
-        </div>
-      </div>
-      <div class="s-callout">Same team, new division of labour: they run the build, you run the definition of done.</div>
-    </div></div>
-
-    <!-- ━━ 10. CONTENT ROWS — ANTI-PATTERNS ━━ -->
-    <div class="slide-canvas"><div class="s-content">
-      <div class="s-eyebrow"><div class="s-eyebrow-sq"></div><span class="s-eyebrow-text">Watch out for</span></div>
-      <div class="s-h1">Five ways it goes wrong</div>
-      <div class="s-list-body">
-        <div class="s-row-item">
-          <span class="s-row-label"><span class="s-row-accent">Demo-trust</span></span>
-          <span class="s-row-sub">It demos beautifully and ships badly — insist on the eval run</span>
-        </div>
-        <div class="s-row-item">
-          <span class="s-row-label"><span class="s-row-accent">Vague-spec drift</span></span>
-          <span class="s-row-sub">A fuzzy brief becomes a confident, wrong product</span>
-        </div>
-        <div class="s-row-item">
-          <span class="s-row-label">The <span class="s-row-accent">velocity illusion</span></span>
-          <span class="s-row-sub">Cheap code is not cheap correctness — the eval cost is real</span>
-        </div>
-        <div class="s-row-item">
-          <span class="s-row-label"><span class="s-row-accent">Scope creep</span></span>
-          <span class="s-row-sub">"It's easy to add" is not a reason to add it</span>
-        </div>
-        <div class="s-row-item">
-          <span class="s-row-label"><span class="s-row-accent">Metric myopia</span></span>
-          <span class="s-row-sub">Agents optimise what you measure — so own the metric</span>
-        </div>
-      </div>
-    </div></div>
-
-    <!-- ━━ 11. CONTENT ROWS — TAKEAWAYS ━━ -->
+    <!-- ━━ 8. CONTENT ROWS — TAKEAWAYS ━━ -->
     <div class="slide-canvas"><div class="s-content">
       <div class="s-eyebrow"><div class="s-eyebrow-sq"></div><span class="s-eyebrow-text">If you try one thing</span></div>
       <div class="s-h1">What you might take from this</div>
       <div class="s-list-body">
         <div class="s-row-item">
-          <span class="s-row-label">A one-page <span class="s-row-accent">product context</span> file</span>
-          <span class="s-row-sub">Glossary, tone, non-goals — the agents read it</span>
+          <span class="s-row-label">Use an agent for <span class="s-row-accent">your own work</span></span>
+          <span class="s-row-sub">Start with your next PRD</span>
         </div>
         <div class="s-row-item">
-          <span class="s-row-label"><span class="s-row-accent">Quality criteria + a 10-item golden set</span></span>
-          <span class="s-row-sub">For your top feature, this week</span>
+          <span class="s-row-label">Get the <span class="s-row-accent">context stack</span></span>
+          <span class="s-row-sub">contiamo-context + a marketplace skill</span>
         </div>
         <div class="s-row-item">
-          <span class="s-row-label">"<span class="s-row-accent">Show me the eval run</span>"</span>
-          <span class="s-row-sub">Make it your standing acceptance ritual</span>
+          <span class="s-row-label">Have an agent <span class="s-row-accent">review a build</span></span>
+          <span class="s-row-sub">Ask it to walk you through the latest change</span>
         </div>
         <div class="s-row-item">
-          <span class="s-row-label">Review <span class="s-row-accent">designs, not diffs</span></span>
-          <span class="s-row-sub">Move your attention up to the spec</span>
+          <span class="s-row-label">Meet the engineers <span class="s-row-accent">halfway</span></span>
+          <span class="s-row-sub">You grow technical; they grow product</span>
         </div>
       </div>
     </div></div>
@@ -355,7 +277,7 @@ html, body { width: 100%; height: 100%; background: #0D0A10; overflow: hidden; f
 
   <div class="controls">
     <button class="ctrl-btn" id="btn-prev" aria-label="Previous">&#8592;</button>
-    <span class="ctrl-counter" id="counter">1 / 11</span>
+    <span class="ctrl-counter" id="counter">1 / 8</span>
     <button class="ctrl-btn" id="btn-next" aria-label="Next">&#8594;</button>
   </div>
 </div>
