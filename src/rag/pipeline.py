@@ -44,6 +44,7 @@ async def stream_answer(
 
     t1 = time.monotonic()
     ttft_ms: float | None = None
+    answer_parts: list[str] = []
 
     response = await litellm.acompletion(
         model=settings.llm_model,
@@ -58,6 +59,7 @@ async def stream_answer(
         if delta := chunk.choices[0].delta.content:
             if ttft_ms is None:
                 ttft_ms = (time.monotonic() - t1) * 1000
+            answer_parts.append(delta)
             yield delta
 
-    tracing.end_trace(trace, ttft_ms, (time.monotonic() - t0) * 1000)
+    tracing.end_trace(trace, ttft_ms, (time.monotonic() - t0) * 1000, "".join(answer_parts))

@@ -55,10 +55,11 @@ def record_retrieval(trace, chunks: list[Chunk], start_time, end_time) -> None:
     )
 
 
-def end_trace(trace, ttft_ms: float | None, total_ms: float) -> None:
+def end_trace(trace, ttft_ms: float | None, total_ms: float, answer: str = "") -> None:
     if not trace:
         return
     trace.update(
+        output={"answer": answer} if answer else None,
         metadata={
             "ttft_ms": round(ttft_ms, 1) if ttft_ms else None,
             "total_latency_ms": round(total_ms, 1),
