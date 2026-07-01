@@ -6,7 +6,7 @@ _One day to define quality, read the evidence, and set a ship gate — hands-on,
 
 > **The through-line:** turn "make the AI better" into a number you can defend.
 
-This day mirrors the engineering workshop slot-for-slot — same spine (**rubric → dataset → score → experiment → gate**), taught from the "define and decide" side instead of the "instrument" side. All labs run on the shared Sherlock Holmes RAG demo, in the Langfuse UI, with no code.
+This day mirrors the engineering workshop slot-for-slot — same spine (**quality criteria → dataset → score → experiment → gate**), taught from the "define and decide" side instead of the "instrument" side. All labs run on the shared Sherlock Holmes RAG demo, in the Langfuse UI, with no code.
 
 ---
 
@@ -19,7 +19,7 @@ This day mirrors the engineering workshop slot-for-slot — same spine (**rubric
 | 09:30 | Welcome & Framing | 15 min | Intro |
 | 09:45 | GenAI in PO/PM & interfacing with GenAI-enabled engineers | 45 min | Field report |
 | 10:30 | ☕ Coffee break | 15 min | |
-| 10:45 | What does "good" look like? — build your rubric | 30 min | Working session |
+| 10:45 | What does "good" look like? — define your quality criteria | 30 min | Working session |
 | 11:15 | Langfuse for POs — a guided tour | 45 min | Instructor-led |
 | 12:00 | Get into Langfuse | 15 min | Hands-on |
 | 12:15 | 🍽 Lunch | 60 min | |
@@ -56,7 +56,7 @@ This day mirrors the engineering workshop slot-for-slot — same spine (**rubric
 **Description:** How the PO/PM role shifts when engineering is agent-driven, and how to work across the handoff. The mirror of the engineering field report.
 
 **Content** (Context · Workflow · Verification):
-- **Context** — your written artifacts (PRDs, glossary, tone rules, rubric) are now _executable context_ the agents read; vague spec in → assumptions out
+- **Context** — your written artifacts (PRDs, glossary, tone rules, quality criteria) are now _executable context_ the agents read; vague spec in → assumptions out
 - **Workflow** — judgment moves up to spec & problem definition; review designs, not diffs; eval-first specs; cheap prototypes change how you discover
 - **Verification** — you own the eval gate; traces & scores are the shared language; the demo is not the deliverable
 - **The two-way contract** — what engineers now need from you vs. what you can expect from them; anti-patterns: demo-trust, velocity illusion, metric myopia
@@ -65,7 +65,7 @@ This day mirrors the engineering workshop slot-for-slot — same spine (**rubric
 
 ---
 
-### 10:45 · What Does "Good" Look Like? — Build Your Rubric · 30 min · Working session
+### 10:45 · What Does "Good" Look Like? — Define Your Quality Criteria · 30 min · Working session
 
 **Description:** Turn fuzzy quality goals into measurable score dimensions — the core PM skill for AI features.
 
@@ -75,7 +75,7 @@ This day mirrors the engineering workshop slot-for-slot — same spine (**rubric
 - Worked example on Sherlock (faithfulness, completeness, tone), then Cornelsen-flavored ones (factual accuracy, age-appropriateness, curriculum fit)
 - Exercise: draft 2–3 score dimensions for your own product
 
-**Goal:** Everyone walks out with a first-draft rubric they'll actually use in the afternoon.
+**Goal:** Everyone walks out with a first-draft set of quality criteria they'll actually use in the afternoon.
 
 ---
 
@@ -137,7 +137,7 @@ This day mirrors the engineering workshop slot-for-slot — same spine (**rubric
 **Description:** The centerpiece — build a golden dataset by annotation, score it, and run the experiment that decides ship/no-ship.
 
 **Content:**
-- **Block A — Build the dataset:** seed items from traces, annotate against your rubric, add expected outputs, add a few synthetic edge cases
+- **Block A — Build the dataset:** seed items from traces, annotate against your quality criteria, add expected outputs, add a few synthetic edge cases
 - Set up an LLM-as-Judge evaluator (no code) and watch scores attach automatically
 - **Block B — Run an experiment:** compare two variants (model A vs. B, or prompt v1 vs. v2) side by side on faithfulness
 - **The gate:** pick a threshold as a _product decision_ ("within 5% → ship the cheaper model"); watch the regression gate pass or fail
@@ -151,7 +151,7 @@ This day mirrors the engineering workshop slot-for-slot — same spine (**rubric
 **Description:** Consolidate the loop and close the arc the morning field report opened.
 
 **Content:**
-- The loop, recapped: rubric → dataset → score → experiment → gate
+- The loop, recapped: quality criteria → dataset → score → experiment → gate
 - Revisit the two-way contract now that you've felt it: what you'll ask engineers for, what you'll own
 - Open floor: the first eval you'll add this week and your biggest blocker
 
