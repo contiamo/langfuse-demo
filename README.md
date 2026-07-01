@@ -56,6 +56,14 @@ task setup             # download demo data + ingest (~2 min, run once)
 
 Open **http://localhost:7932** and start asking questions.
 
+### Reset / start completely fresh
+
+```bash
+docker compose down -v   # remove containers and DB volume
+rm -f data/*.txt         # remove downloaded data files
+./start.sh               # rebuild, reingest, ready
+```
+
 ## Tasks
 
 | Command | What it does |
