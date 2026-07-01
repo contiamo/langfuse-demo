@@ -37,7 +37,7 @@ docker compose up -d --build
 # ── 5. Wait for the app to be healthy ────────────────────────────────────────
 info "Waiting for app to be ready..."
 ATTEMPTS=0
-until docker compose exec -T app curl -sf http://localhost:7932/health &>/dev/null; do
+until curl -sf http://localhost:7932/health &>/dev/null; do
     ATTEMPTS=$((ATTEMPTS + 1))
     [ $ATTEMPTS -gt 30 ] && error "App did not start. Run: docker compose logs app"
     sleep 2
