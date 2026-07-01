@@ -1,0 +1,372 @@
+<meta charset="utf-8">
+<title>03 · Langfuse for POs — Gen AI for Product · Cornelsen</title>
+<meta name="description" content="A tour of Langfuse from the read-and-decide side: observability, prompt management, and evaluation — reframed for Product Owners and PMs who read the evidence and own the gate.">
+<style>
+:root {
+  --night:     #1A1321;
+  --berry:     #7E1C42;
+  --gold:      #C8924C;
+  --parchment: #EDE8DF;
+  --ink:       #1D1422;
+  --chalk:     #F4F1EC;
+  --rule:      #D4CCBC;
+  --muted:     #8A7E72;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+html, body { width: 100%; height: 100%; background: #0D0A10; overflow: hidden; font-family: Georgia, 'Times New Roman', serif; }
+
+.deck { width: 100vw; height: 100vh; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 12px; }
+.stage-wrap { position: relative; }
+.slide-canvas { position: absolute; top: 0; left: 0; width: 800px; height: 450px; transform-origin: top left; overflow: hidden; display: none; }
+.slide-canvas.active { display: block; }
+
+.controls { display: flex; align-items: center; gap: 12px; flex-shrink: 0; }
+.ctrl-btn { background: none; border: 1px solid rgba(244,241,236,0.18); color: rgba(244,241,236,0.55); width: 32px; height: 32px; cursor: pointer; font-size: 14px; display: flex; align-items: center; justify-content: center; }
+.ctrl-btn:hover:not(:disabled) { background: rgba(244,241,236,0.08); }
+.ctrl-btn:disabled { opacity: 0.2; cursor: default; }
+.ctrl-counter { font-family: 'SF Mono','Menlo',monospace; font-size: 11px; color: rgba(244,241,236,0.3); min-width: 52px; text-align: center; font-variant-numeric: tabular-nums; user-select: none; }
+
+/* ── COVER ── */
+.s-cover { width: 800px; height: 450px; display: grid; grid-template-columns: 520px 280px; }
+.s-cover-left { background: var(--night); padding: 40px 48px; display: flex; flex-direction: column; justify-content: space-between; }
+.s-cover-right { background: var(--berry); display: flex; align-items: center; justify-content: center; }
+.s-wordmark { display: flex; align-items: center; gap: 8px; color: var(--chalk); font-family: system-ui,sans-serif; font-size: 9px; letter-spacing: 0.18em; text-transform: uppercase; opacity: 0.7; }
+.s-cover-body { display: flex; flex-direction: column; }
+.s-cover-eyebrow { font-family: system-ui,sans-serif; font-size: 9px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--gold); margin-bottom: 12px; font-weight: 600; }
+.s-cover-h1 { font-size: 56px; font-weight: bold; color: var(--chalk); line-height: 1.02; }
+.s-cover-h1-gold { color: var(--gold); }
+.s-cover-sub { font-style: italic; font-size: 16px; color: rgba(244,241,236,0.65); line-height: 1.45; margin-top: 16px; max-width: 400px; }
+.s-cover-footer { display: flex; flex-direction: column; gap: 2px; }
+.s-cover-speaker { font-size: 12px; font-weight: bold; color: var(--chalk); }
+.s-cover-role { font-size: 10px; color: rgba(244,241,236,0.4); }
+
+/* ── SECTION DIVIDER ── */
+.s-div { width: 800px; height: 450px; display: grid; grid-template-rows: 290px 160px; }
+.s-div-top { background: var(--berry); padding: 0 60px; display: flex; flex-direction: column; justify-content: center; }
+.s-div-eyebrow { font-family: system-ui,sans-serif; font-weight: 600; font-size: 9px; letter-spacing: 0.14em; text-transform: uppercase; color: rgba(244,241,236,0.7); margin-bottom: 16px; }
+.s-div-title { font-weight: bold; color: white; line-height: 1.04; font-size: 60px; }
+.s-div-bottom { background: var(--night); padding: 0 60px; display: flex; align-items: center; }
+.s-div-meta { font-family: system-ui,sans-serif; font-size: 10px; letter-spacing: 0.06em; text-transform: uppercase; color: rgba(244,241,236,0.28); }
+.s-div-meta strong { color: rgba(200,146,76,0.85); font-weight: 600; }
+
+/* ── CONTENT (shared) ── */
+.s-content { width: 800px; height: 450px; background: var(--parchment); padding: 32px 48px 26px; display: flex; flex-direction: column; }
+.s-eyebrow { display: flex; align-items: center; gap: 7px; margin-bottom: 11px; }
+.s-eyebrow-sq { width: 9px; height: 9px; background: var(--berry); flex-shrink: 0; }
+.s-eyebrow-text { font-family: system-ui,sans-serif; font-weight: 600; font-size: 9px; letter-spacing: 0.13em; text-transform: uppercase; color: var(--berry); }
+.s-h1 { font-size: 31px; font-weight: bold; color: var(--ink); line-height: 1.07; margin-bottom: 18px; }
+
+/* ── CONTENT — CARDS ── */
+.s-card-row { display: grid; grid-template-columns: repeat(5, 1fr); gap: 9px; flex: 1; }
+.s-card { background: white; border-top: 3px solid var(--berry); padding: 13px 13px; display: flex; flex-direction: column; gap: 7px; }
+.s-card.active { background: var(--berry); border-top-color: var(--gold); }
+.s-card-year { font-size: 21px; font-weight: bold; color: var(--berry); line-height: 1; }
+.s-card.active .s-card-year { color: var(--gold); }
+.s-card-title { font-size: 12.5px; font-weight: bold; color: var(--ink); line-height: 1.2; }
+.s-card.active .s-card-title { color: white; }
+.s-card hr { border: none; border-top: 1px solid rgba(0,0,0,0.1); }
+.s-card.active hr { border-top-color: rgba(255,255,255,0.2); }
+.s-card-sub { font-family: system-ui,sans-serif; font-size: 9px; font-weight: 700; color: var(--gold); letter-spacing: 0.02em; }
+.s-card-bullets { font-size: 9.5px; color: var(--ink); list-style: none; display: flex; flex-direction: column; gap: 3px; line-height: 1.3; }
+.s-card.active .s-card-bullets { color: rgba(244,241,236,0.9); }
+.s-card-bullets li::before { content: "• "; }
+.s-card-bullets .dim { color: rgba(29,20,34,0.4); font-style: italic; }
+.s-card.active .s-card-bullets .dim { color: rgba(244,241,236,0.4); }
+
+/* ── CONTENT — ROWS ── */
+.s-list-body { display: flex; flex-direction: column; gap: 8px; flex: 1; }
+.s-row-item { background: white; border: 1px solid rgba(212,204,188,0.8); padding: 12px 18px; display: flex; align-items: center; gap: 20px; }
+.s-row-label { font-size: 14px; font-weight: bold; color: var(--ink); }
+.s-row-accent { color: var(--berry); }
+.s-row-sub { font-style: italic; font-size: 12.5px; color: rgba(29,20,34,0.45); margin-left: auto; text-align: right; }
+.s-callout { font-size: 17px; font-weight: bold; color: var(--berry); font-style: italic; margin-top: 12px; }
+
+/* ── STATEMENT ── */
+.s-statement { width: 800px; height: 450px; background: var(--parchment); padding: 56px 64px; display: flex; flex-direction: column; justify-content: center; }
+.s-statement-h1 { font-size: 60px; font-weight: bold; color: var(--ink); line-height: 1.03; margin-bottom: 24px; }
+.s-statement-sub { font-style: italic; font-size: 20px; color: rgba(29,20,34,0.5); line-height: 1.5; max-width: 600px; }
+</style>
+
+<div class="deck">
+  <div class="stage-wrap" id="stage">
+
+    <!-- ━━ 1. COVER ━━ -->
+    <div class="slide-canvas"><div class="s-cover">
+      <div class="s-cover-left">
+        <div class="s-wordmark">
+          <svg width="14" height="14" viewBox="0 0 100 100" fill="none" aria-hidden="true">
+            <path d="M74 17 A35 35 0 1 0 74 83" stroke="currentColor" stroke-width="10" stroke-linecap="round"/>
+            <path d="M67 30 A22 22 0 1 0 67 70" stroke="currentColor" stroke-width="9" stroke-linecap="round"/>
+            <path d="M60 42 A10 10 0 1 0 60 58" stroke="currentColor" stroke-width="8" stroke-linecap="round"/>
+          </svg>
+          Contiamo
+        </div>
+        <div class="s-cover-body">
+          <div class="s-cover-eyebrow">Gen AI for Product · Cornelsen · Berlin</div>
+          <div class="s-cover-h1">Langfuse<br><span class="s-cover-h1-gold">for POs.</span></div>
+          <div class="s-cover-sub">A tour from the read-and-decide side — not the instrument side. Where you actually work.</div>
+        </div>
+        <div class="s-cover-footer">
+          <div class="s-cover-speaker">Contiamo</div>
+          <div class="s-cover-role">11:15 · Leipziger Straße 126, Berlin</div>
+        </div>
+      </div>
+      <div class="s-cover-right">
+        <svg width="140" height="140" viewBox="0 0 100 100" fill="none" aria-hidden="true">
+          <path d="M74 17 A35 35 0 1 0 74 83" stroke="rgba(244,241,236,0.85)" stroke-width="8" stroke-linecap="round"/>
+          <path d="M67 30 A22 22 0 1 0 67 70" stroke="rgba(244,241,236,0.85)" stroke-width="7" stroke-linecap="round"/>
+          <path d="M60 42 A10 10 0 1 0 60 58" stroke="rgba(244,241,236,0.85)" stroke-width="6" stroke-linecap="round"/>
+        </svg>
+      </div>
+    </div></div>
+
+    <!-- ━━ 2. STATEMENT — FRAMING ━━ -->
+    <div class="slide-canvas"><div class="s-statement">
+      <div class="s-statement-h1">For engineers it's a debugger.<br>For you it's the <span class="s-cover-h1-gold">evidence.</span></div>
+      <div class="s-statement-sub">Same platform, different door: you read the traces, curate the data, and set the gate.</div>
+    </div></div>
+
+    <!-- ━━ 3. DIVIDER — OBSERVABILITY ━━ -->
+    <div class="slide-canvas"><div class="s-div">
+      <div class="s-div-top">
+        <div class="s-div-eyebrow">Pillar one of three</div>
+        <div class="s-div-title">Observability</div>
+      </div>
+      <div class="s-div-bottom"><div class="s-div-meta"><strong>The principle</strong> &nbsp;The evidence — what actually happened</div></div>
+    </div></div>
+
+    <!-- ━━ 4. CONTENT CARDS — WHAT YOU READ ━━ -->
+    <div class="slide-canvas"><div class="s-content">
+      <div class="s-eyebrow"><div class="s-eyebrow-sq"></div><span class="s-eyebrow-text">Pillar one · Observability</span></div>
+      <div class="s-h1">What you read</div>
+      <div class="s-card-row">
+        <div class="s-card">
+          <div class="s-card-year">Traces</div>
+          <div class="s-card-title">One request, end to end</div>
+          <hr>
+          <div class="s-card-sub">per request</div>
+          <ul class="s-card-bullets">
+            <li>question → retrieval → answer</li>
+            <li>cost &amp; latency per step</li>
+          </ul>
+        </div>
+        <div class="s-card">
+          <div class="s-card-year">Sessions</div>
+          <div class="s-card-title">Conversation replay</div>
+          <hr>
+          <div class="s-card-sub">multi-turn</div>
+          <ul class="s-card-bullets">
+            <li>every turn in order</li>
+            <li>replay how it went wrong</li>
+          </ul>
+        </div>
+        <div class="s-card">
+          <div class="s-card-year">Users</div>
+          <div class="s-card-title">Per-user cost &amp; feedback</div>
+          <hr>
+          <div class="s-card-sub">who</div>
+          <ul class="s-card-bullets">
+            <li>who's costly</li>
+            <li>who's unhappy</li>
+          </ul>
+        </div>
+        <div class="s-card">
+          <div class="s-card-year">Dashboards</div>
+          <div class="s-card-title">Trends over time</div>
+          <hr>
+          <div class="s-card-sub">aggregate</div>
+          <ul class="s-card-bullets">
+            <li>is quality improving?</li>
+            <li>cost &amp; latency trends</li>
+          </ul>
+        </div>
+        <div class="s-card">
+          <div class="s-card-year">Monitors</div>
+          <div class="s-card-title">Threshold alerts</div>
+          <hr>
+          <div class="s-card-sub">beta</div>
+          <ul class="s-card-bullets">
+            <li>Slack when it regresses</li>
+            <li>catch it before users do</li>
+          </ul>
+        </div>
+      </div>
+    </div></div>
+
+    <!-- ━━ 5. DIVIDER — PROMPT MGMT ━━ -->
+    <div class="slide-canvas"><div class="s-div">
+      <div class="s-div-top">
+        <div class="s-div-eyebrow">Pillar two of three</div>
+        <div class="s-div-title">Prompt Mgmt</div>
+      </div>
+      <div class="s-div-bottom"><div class="s-div-meta"><strong>The principle</strong> &nbsp;Product config — behaviour without a deploy</div></div>
+    </div></div>
+
+    <!-- ━━ 6. CONTENT ROWS — PROMPT MANAGEMENT ━━ -->
+    <div class="slide-canvas"><div class="s-content">
+      <div class="s-eyebrow"><div class="s-eyebrow-sq"></div><span class="s-eyebrow-text">Pillar two · Prompt Management</span></div>
+      <div class="s-h1">Behaviour without a deploy</div>
+      <div class="s-list-body">
+        <div class="s-row-item">
+          <span class="s-row-label"><span class="s-row-accent">Prompts</span> are versioned</span>
+          <span class="s-row-sub">change behaviour with no code deploy</span>
+        </div>
+        <div class="s-row-item">
+          <span class="s-row-label">The <span class="s-row-accent">production label</span> picks the live one</span>
+          <span class="s-row-sub">roll forward or back in a click</span>
+        </div>
+        <div class="s-row-item">
+          <span class="s-row-label"><span class="s-row-accent">Playground</span> — edit &amp; compare</span>
+          <span class="s-row-sub">pull a failing trace, tweak, re-run side by side</span>
+        </div>
+        <div class="s-row-item">
+          <span class="s-row-label">Who <span class="s-row-accent">owns</span> the prompt?</span>
+          <span class="s-row-sub">a governance question that's now yours</span>
+        </div>
+      </div>
+      <div class="s-callout">Prompts are product config — which makes versioning and review your concern.</div>
+    </div></div>
+
+    <!-- ━━ 7. DIVIDER — EVALUATION ━━ -->
+    <div class="slide-canvas"><div class="s-div">
+      <div class="s-div-top">
+        <div class="s-div-eyebrow">Pillar three of three</div>
+        <div class="s-div-title">Evaluation</div>
+      </div>
+      <div class="s-div-bottom"><div class="s-div-meta"><strong>The principle</strong> &nbsp;Your quality system — scores, judges, datasets</div></div>
+    </div></div>
+
+    <!-- ━━ 8. CONTENT CARDS — YOUR QUALITY SYSTEM ━━ -->
+    <div class="slide-canvas"><div class="s-content">
+      <div class="s-eyebrow"><div class="s-eyebrow-sq"></div><span class="s-eyebrow-text">Pillar three · Evaluation</span></div>
+      <div class="s-h1">Your quality system</div>
+      <div class="s-card-row">
+        <div class="s-card">
+          <div class="s-card-year">Scores</div>
+          <div class="s-card-title">Typed quality values</div>
+          <hr>
+          <div class="s-card-sub">one table</div>
+          <ul class="s-card-bullets">
+            <li>human, code, or judge</li>
+            <li>directly comparable</li>
+          </ul>
+        </div>
+        <div class="s-card active">
+          <div class="s-card-year">Evaluators</div>
+          <div class="s-card-title">LLM-as-Judge at scale</div>
+          <hr>
+          <div class="s-card-sub">no code</div>
+          <ul class="s-card-bullets">
+            <li>faithfulness on every trace</li>
+            <li>runs in Langfuse's cloud</li>
+          </ul>
+        </div>
+        <div class="s-card">
+          <div class="s-card-year">Annotation</div>
+          <div class="s-card-title">Reviewer workflow</div>
+          <hr>
+          <div class="s-card-sub">human</div>
+          <ul class="s-card-bullets">
+            <li>your golden ground truth</li>
+            <li>queues for batches</li>
+          </ul>
+        </div>
+        <div class="s-card">
+          <div class="s-card-year">Datasets</div>
+          <div class="s-card-title">Versioned test suites</div>
+          <hr>
+          <div class="s-card-sub">reusable</div>
+          <ul class="s-card-bullets">
+            <li>built from real failures</li>
+            <li>re-run every experiment</li>
+          </ul>
+        </div>
+        <div class="s-card">
+          <div class="s-card-year">Experiments</div>
+          <div class="s-card-title">Compare variants</div>
+          <hr>
+          <div class="s-card-sub">A/B</div>
+          <ul class="s-card-bullets">
+            <li>runs side by side</li>
+            <li>per-item scores</li>
+          </ul>
+        </div>
+      </div>
+    </div></div>
+
+    <!-- ━━ 9. CONTENT ROWS — THE LOOP ━━ -->
+    <div class="slide-canvas"><div class="s-content">
+      <div class="s-eyebrow"><div class="s-eyebrow-sq"></div><span class="s-eyebrow-text">The loop</span></div>
+      <div class="s-h1">The loop you'll run this afternoon</div>
+      <div class="s-list-body">
+        <div class="s-row-item">
+          <span class="s-row-label"><span class="s-row-accent">Trace</span></span>
+          <span class="s-row-sub">see what happened</span>
+        </div>
+        <div class="s-row-item">
+          <span class="s-row-label"><span class="s-row-accent">Dataset</span></span>
+          <span class="s-row-sub">capture the failures</span>
+        </div>
+        <div class="s-row-item">
+          <span class="s-row-label"><span class="s-row-accent">Score</span></span>
+          <span class="s-row-sub">measure against your rubric</span>
+        </div>
+        <div class="s-row-item">
+          <span class="s-row-label"><span class="s-row-accent">Experiment</span></span>
+          <span class="s-row-sub">change one variable, compare</span>
+        </div>
+        <div class="s-row-item">
+          <span class="s-row-label"><span class="s-row-accent">Gate</span></span>
+          <span class="s-row-sub">ship / no-ship on a threshold</span>
+        </div>
+      </div>
+      <div class="s-callout">Trace → dataset → score → experiment → gate — the spine of your afternoon.</div>
+    </div></div>
+
+  </div>
+
+  <div class="controls">
+    <button class="ctrl-btn" id="btn-prev" aria-label="Previous">&#8592;</button>
+    <span class="ctrl-counter" id="counter">1 / 9</span>
+    <button class="ctrl-btn" id="btn-next" aria-label="Next">&#8594;</button>
+  </div>
+</div>
+
+<script>
+  var slides  = Array.from(document.querySelectorAll('.slide-canvas'));
+  var total   = slides.length;
+  var current = 0;
+  var stage   = document.getElementById('stage');
+  var counter = document.getElementById('counter');
+  var btnPrev = document.getElementById('btn-prev');
+  var btnNext = document.getElementById('btn-next');
+
+  function show(n) {
+    slides[current].classList.remove('active');
+    current = Math.max(0, Math.min(total - 1, n));
+    slides[current].classList.add('active');
+    counter.textContent = (current + 1) + ' / ' + total;
+    btnPrev.disabled = current === 0;
+    btnNext.disabled = current === total - 1;
+  }
+
+  function scale() {
+    var vw = window.innerWidth;
+    var vh = window.innerHeight - 60;
+    var s  = Math.min(vw / 800, vh / 450);
+    stage.style.width  = Math.round(800 * s) + 'px';
+    stage.style.height = Math.round(450 * s) + 'px';
+    slides.forEach(function(el) { el.style.transform = 'scale(' + s + ')'; });
+  }
+
+  btnPrev.addEventListener('click', function() { show(current - 1); });
+  btnNext.addEventListener('click', function() { show(current + 1); });
+  document.addEventListener('keydown', function(e) {
+    if (e.key === 'ArrowRight' || e.key === 'ArrowDown' || e.key === ' ') { e.preventDefault(); show(current + 1); }
+    if (e.key === 'ArrowLeft'  || e.key === 'ArrowUp')                    { e.preventDefault(); show(current - 1); }
+  });
+
+  window.addEventListener('resize', scale);
+  scale();
+  show(0);
+</script>
